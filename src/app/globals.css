@@ -444,3 +444,114 @@ main, .feed {
   display: inline-block;
   margin-top: 24px;
 }
+
+/* 動画サムネイル表示スタイル */
+.video-thumbnail-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.video-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.video-thumbnail.error {
+  background-color: #1a1a1a;
+}
+
+.video-thumbnail-image {
+  display: none;
+}
+
+.play-button-overlay {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.play-button-overlay:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+.play-button-icon {
+  width: 0;
+  height: 0;
+  border-left: 20px solid white;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  margin-left: 4px;
+}
+
+.thumbnail-fallback {
+  text-align: center;
+  color: white;
+  padding: 20px;
+}
+
+.thumbnail-fallback-icon {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.thumbnail-fallback-text {
+  font-size: 14px;
+}
+
+.video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-iframe.hidden {
+  display: none;
+}
+
+/* カードフッター要素のスタイル */
+.card-footer .offer-name {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.card-footer .video-description {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+}
+
+.card-footer .video-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.card-footer .cta-link {
+  display: inline-flex;
+  padding: 10px 16px;
+  background: #fff;
+  color: #000;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+}

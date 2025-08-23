@@ -24,6 +24,12 @@ type Video = {
   };
 };
 
+// DMMのサムネイル画像URLを生成する関数
+function getDmmThumbnailUrl(videoId: string): string {
+  // DMMの一般的なサムネイル画像パターン
+  return `https://pics.dmm.co.jp/digital/video/${videoId}/${videoId}pl.jpg`;
+}
+
 type UserBehavior = {
   videoId: string;
   action: 'view' | 'skip' | 'complete' | 'click';
@@ -44,9 +50,13 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
   const [viewStartTime, setViewStartTime] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [thumbnailError, setThumbnailError] = useState(false);
 
   // 監視対象は「枠（iframe）」ではなく「セクション」側で見ると精度が上がる
   const sectionRef = useRef<HTMLElement | null>(null);
+
+  const thumbnailUrl = getDmmThumbnailUrl(id);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -80,17 +90,32 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
     return () => io.disconnect();
   }, [id, video, onUserAction, viewStartTime]);
 
-  // 見えたらsrcを入れる、外れたらアンロード（再入場時は最初から）
+  // 見えたらiframeの準備はするが、手動再生まではsrcを入れない
   useEffect(() => {
     const iframe = frameRef.current;
     if (!iframe) return;
-    if (inView) {
+    
+    // 自動再生はしない - ユーザーのクリックを待つ
+    if (isPlaying && inView) {
       if (!iframe.src || iframe.src === "about:blank") iframe.src = embedSrc;
     } else {
-      // ロードを確実に止める
+      // 再生停止時はロードを確実に止める
       if (iframe.src && iframe.src !== "about:blank") iframe.src = "about:blank";
     }
-  }, [inView, embedSrc]);
+  }, [isPlaying, inView, embedSrc]);
+
+  // 再生ボタンクリック時の処理
+  const handlePlayClick = () => {
+    setIsPlaying(true);
+    setViewStartTime(Date.now());
+    
+    // 再生開始の行動記録
+    onUserAction({
+      videoId: id,
+      action: 'view',
+      timestamp: Date.now()
+    }, video);
+  };
 
   // CTAクリック時の行動記録
   const handleCtaClick = () => {
@@ -103,38 +128,64 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
 
   return (
     <section ref={sectionRef} className="card" aria-label={title}>
-      {/* 16:9を画面中央に最大サイズで配置（上下黒帯） */}
-      <iframe
-        ref={frameRef}
-        title={title}
-        // srcはIOで制御
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          border: "none"
-        }}
-        sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        allow="autoplay; encrypted-media; picture-in-picture"
-        scrolling="no"
-        frameBorder={0}
-        allowFullScreen
-      />
+      <div className="video-thumbnail-container">
+        {/* サムネイル表示 */}
+        {!isPlaying && (
+          <div 
+            className={`video-thumbnail ${thumbnailError ? 'error' : ''}`}
+            style={{ 
+              backgroundImage: !thumbnailError ? `url(${thumbnailUrl})` : 'none'
+            }} 
+            onClick={handlePlayClick}
+          >
+            {/* サムネイル画像のエラーハンドリング */}
+            {!thumbnailError && (
+              <img 
+                src={thumbnailUrl} 
+                alt={`${title}のサムネイル`}
+                className="video-thumbnail-image"
+                onError={() => setThumbnailError(true)}
+                onLoad={() => setThumbnailError(false)}
+              />
+            )}
+            
+            {/* 再生ボタンオーバーレイ */}
+            <div className="play-button-overlay">
+              <div className="play-button-icon" />
+            </div>
+            
+            {/* フォールバック表示（サムネイル取得失敗時） */}
+            {thumbnailError && (
+              <div className="thumbnail-fallback">
+                <div className="thumbnail-fallback-icon">🎬</div>
+                <div className="thumbnail-fallback-text">クリックして再生</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* iframe (再生中のみ表示) */}
+        <iframe
+          ref={frameRef}
+          title={title}
+          className={`video-iframe ${!isPlaying ? 'hidden' : ''}`}
+          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          scrolling="no"
+          frameBorder={0}
+          allowFullScreen
+        />
+      </div>
 
       <div className="card-footer">
-        <div style={{ fontSize: 12, opacity: .9 }}>{offerName}</div>
-        {video.desc && <div style={{ fontSize: 14, opacity: .9, marginBottom: 8 }}>{video.desc}</div>}
-        <div style={{ fontSize: 18, fontWeight: 700, margin: "8px 0" }}>{video.title}</div>
+        <div className="offer-name">{offerName}</div>
+        {video.desc && <div className="video-description">{video.desc}</div>}
+        <div className="video-title">{video.title}</div>
         <a
           href={`/go/${id}`}
           onClick={handleCtaClick}
           rel="sponsored"
-          style={{
-            display: "inline-flex", padding: "10px 16px",
-            background: "#fff", color: "#000", borderRadius: 8, fontWeight: 600
-          }}
+          className="cta-link"
         >
           本編へ
         </a>
