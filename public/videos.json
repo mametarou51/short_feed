@@ -108,5 +108,45 @@
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d11"
     }
+  },
+  {
+    "id": "d12",
+    "type": "dmm_iframe",
+    "title": "IPZZ-564",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=ipzz00564/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d12"
+    }
+  },
+  {
+    "id": "d13",
+    "type": "dmm_iframe",
+    "title": "SONE-673",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=sone00673/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d13"
+    }
+  },
+  {
+    "id": "d14",
+    "type": "dmm_iframe",
+    "title": "SONE-197",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=sone00197/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d14"
+    }
+  },
+  {
+    "id": "d15",
+    "type": "dmm_iframe",
+    "title": "MIDA-040",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=mida00040/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d15"
+    }
   }
 ]

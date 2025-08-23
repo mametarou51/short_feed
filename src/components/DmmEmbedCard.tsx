@@ -41,23 +41,24 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
   return (
     <section ref={sectionRef} className="card" aria-label={title}>
       {/* 16:9を画面中央に最大サイズで配置（上下黒帯） */}
-      <div style={{
-        position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center"
-      }}>
-        <div style={{ width: "100%", height: "100%", maxHeight: "100vh", aspectRatio: "16/9" }}>
-          <iframe
-            ref={frameRef}
-            title={title}
-            // srcはIOで制御
-            className="w-full h-full"
-            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            scrolling="no"
-            frameBorder={0}
-            allowFullScreen
-          />
-        </div>
-      </div>
+      <iframe
+        ref={frameRef}
+        title={title}
+        // srcはIOで制御
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          border: "none"
+        }}
+        sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        allow="autoplay; encrypted-media; picture-in-picture"
+        scrolling="no"
+        frameBorder={0}
+        allowFullScreen
+      />
 
       <div className="card-footer">
         <div style={{ fontSize: 12, opacity: .9 }}>{offerName}</div>
