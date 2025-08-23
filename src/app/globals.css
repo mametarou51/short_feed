@@ -463,7 +463,7 @@ main, .feed {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: default;
   z-index: 1;
 }
 
@@ -471,8 +471,12 @@ main, .feed {
   background-color: #1a1a1a;
 }
 
-.video-thumbnail-image {
-  display: none;
+.video-thumbnail-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .play-button-overlay {

@@ -50,7 +50,6 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
   const [viewStartTime, setViewStartTime] = useState<number | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
 
   // 監視対象は「枠（iframe）」ではなく「セクション」側で見ると精度が上がる
@@ -90,32 +89,17 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
     return () => io.disconnect();
   }, [id, video, onUserAction, viewStartTime]);
 
-  // 見えたらiframeの準備はするが、手動再生まではsrcを入れない
+  // 見えたらsrcを入れる、外れたらアンロード（再入場時は最初から）
   useEffect(() => {
     const iframe = frameRef.current;
     if (!iframe) return;
-    
-    // 自動再生はしない - ユーザーのクリックを待つ
-    if (isPlaying && inView) {
+    if (inView) {
       if (!iframe.src || iframe.src === "about:blank") iframe.src = embedSrc;
     } else {
-      // 再生停止時はロードを確実に止める
+      // ロードを確実に止める
       if (iframe.src && iframe.src !== "about:blank") iframe.src = "about:blank";
     }
-  }, [isPlaying, inView, embedSrc]);
-
-  // 再生ボタンクリック時の処理
-  const handlePlayClick = () => {
-    setIsPlaying(true);
-    setViewStartTime(Date.now());
-    
-    // 再生開始の行動記録
-    onUserAction({
-      videoId: id,
-      action: 'view',
-      timestamp: Date.now()
-    }, video);
-  };
+  }, [inView, embedSrc]);
 
   // CTAクリック時の行動記録
   const handleCtaClick = () => {
@@ -129,46 +113,34 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
   return (
     <section ref={sectionRef} className="card" aria-label={title}>
       <div className="video-thumbnail-container">
-        {/* サムネイル表示 */}
-        {!isPlaying && (
+        {/* サムネイル表示（画面内に入るまではプレビューを表示） */}
+        {!inView && (
           <div 
             className={`video-thumbnail ${thumbnailError ? 'error' : ''}`}
-            style={{ 
-              backgroundImage: !thumbnailError ? `url(${thumbnailUrl})` : 'none'
-            }} 
-            onClick={handlePlayClick}
           >
-            {/* サムネイル画像のエラーハンドリング */}
             {!thumbnailError && (
               <img 
                 src={thumbnailUrl} 
                 alt={`${title}のサムネイル`}
-                className="video-thumbnail-image"
+                className="video-thumbnail-img"
                 onError={() => setThumbnailError(true)}
                 onLoad={() => setThumbnailError(false)}
               />
             )}
-            
-            {/* 再生ボタンオーバーレイ */}
-            <div className="play-button-overlay">
-              <div className="play-button-icon" />
-            </div>
-            
-            {/* フォールバック表示（サムネイル取得失敗時） */}
             {thumbnailError && (
               <div className="thumbnail-fallback">
                 <div className="thumbnail-fallback-icon">🎬</div>
-                <div className="thumbnail-fallback-text">クリックして再生</div>
+                <div className="thumbnail-fallback-text">プレビュー</div>
               </div>
             )}
           </div>
         )}
 
-        {/* iframe (再生中のみ表示) */}
+        {/* 画面内に入ったらiframeを表示・読み込み */}
         <iframe
           ref={frameRef}
           title={title}
-          className={`video-iframe ${!isPlaying ? 'hidden' : ''}`}
+          className={`video-iframe ${!inView ? 'hidden' : ''}`}
           sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           allow="autoplay; encrypted-media; picture-in-picture"
           scrolling="no"
