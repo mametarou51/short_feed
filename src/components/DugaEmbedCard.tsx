@@ -65,23 +65,35 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
              data-l="ppv" 
              data-p="${video.id}" 
              data-a="48475" 
-             data-b="01">
+             data-b="01"
+             style="width: 540px; height: 300px;">
           <a href="${video.offer.url}" target="_blank">${video.title}</a>
         </div>
       `;
       
-      // プレイヤー用スクリプトを読み込み（まだ存在しない場合のみ）
-      if (!document.querySelector('script[src="https://ad.duga.jp/flash/dugaflvplayer.js"]')) {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = 'https://ad.duga.jp/flash/dugaflvplayer.js';
-        script.defer = true;
-        document.body.appendChild(script);
-      }
+      console.log(`Created player div for ${video.id}:`, container.innerHTML);
+      
+      // プレイヤー用スクリプトを読み込み
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://ad.duga.jp/flash/dugaflvplayer.js';
+      script.onload = () => {
+        // スクリプト読み込み後、少し待ってからプレイヤーを初期化
+        setTimeout(() => {
+          // DUGAのプレイヤー初期化関数を実行
+          if (typeof (window as any).initDugaAdMovie === 'function') {
+            (window as any).initDugaAdMovie();
+          }
+        }, 200);
+      };
+      document.body.appendChild(script);
       
       return () => {
         // クリーンアップ
         container.innerHTML = '';
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
       };
     }
   }, [showVideo, video.id, video.offer.url, video.title]);
