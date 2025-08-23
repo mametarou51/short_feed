@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Video } from '@/types/video';
 
 // サムネイル画像URLを生成する関数
@@ -29,6 +29,33 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [showVideo, setShowVideo] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
+  const dugaThumbnailRef = useRef<HTMLDivElement>(null);
+
+  // DUGAサムネイル読み込み
+  useEffect(() => {
+    if (video.type === 'duga_iframe' && dugaThumbnailRef.current) {
+      const container = dugaThumbnailRef.current;
+      
+      // サムネイル用のHTML構造を作成
+      container.innerHTML = `
+        <div id="affimage-${video.id}">
+          <a href="${video.offer.url}" target="_blank">${video.title}</a>
+        </div>
+      `;
+      
+      // サムネイル用スクリプトを読み込み
+      const thumbnailScript = document.createElement('script');
+      thumbnailScript.type = 'text/javascript';
+      thumbnailScript.src = `https://ad.duga.jp/affimage/ppv/${video.id}/1/48475-01`;
+      thumbnailScript.async = true;
+      container.appendChild(thumbnailScript);
+      
+      return () => {
+        // クリーンアップ
+        container.innerHTML = '';
+      };
+    }
+  }, [video.type, video.id, video.offer.url, video.title]);
 
   // サムネイルクリックで動画表示
   const handleThumbnailClick = () => {
@@ -45,68 +72,67 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
       <div className="video-thumbnail-container" style={{position: 'relative'}}>
         {/* サムネイルを動画に重ねて表示 */}
         {!showVideo && (
-          <div 
-            className={`video-thumbnail`}
-            style={{
-              position: 'absolute', 
-              top: 0, 
-              left: 0, 
-              width: '100%', 
-              height: '100%', 
-              zIndex: 2, 
-              cursor: 'pointer',
-              backgroundImage: `url(${getThumbnailUrl(video)})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
-            onClick={handleThumbnailClick}
-          >
-            <div className="play-button-overlay">
-              <div className="play-button-icon"></div>
+          video.type === 'duga_iframe' ? (
+            <div 
+              ref={dugaThumbnailRef}
+              className="duga-thumbnail"
+              style={{
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                width: '100%', 
+                height: '100%', 
+                zIndex: 2, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden'
+              }}
+              onClick={handleThumbnailClick}
+            />
+          ) : (
+            <div 
+              className={`video-thumbnail`}
+              style={{
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                width: '100%', 
+                height: '100%', 
+                zIndex: 2, 
+                cursor: 'pointer',
+                backgroundImage: `url(${getThumbnailUrl(video)})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+              onClick={handleThumbnailClick}
+            >
+              <div className="play-button-overlay">
+                <div className="play-button-icon"></div>
+              </div>
             </div>
-          </div>
+          )
         )}
         {/* サムネイルクリック後に動画表示 */}
         {showVideo && (
           video.type === 'duga_iframe' ? (
             <div 
-              className="duga-placeholder"
+              className="duga-video-container"
               style={{
                 width: '100%', 
                 height: '100%', 
                 position: 'absolute', 
                 top: 0, 
                 left: 0, 
-                zIndex: 1, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                backgroundColor: '#1a1a1a',
-                color: 'white',
-                flexDirection: 'column'
+                zIndex: 1,
+                backgroundColor: '#1a1a1a'
               }}
-            >
-              <div style={{textAlign: 'center', padding: '20px'}}>
-                <div style={{fontSize: '16px', marginBottom: '15px'}}>DUGA動画</div>
-                <a 
-                  href={video.offer.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-block',
-                    padding: '12px 24px',
-                    backgroundColor: '#ff6b6b',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px'
-                  }}
-                >
-                  DUGAで視聴する
-                </a>
-              </div>
-            </div>
+              dangerouslySetInnerHTML={{
+                __html: `<script type="text/javascript" src="${video.embedSrc}"></script>`
+              }}
+            />
           ) : (
             <iframe
               ref={frameRef}
