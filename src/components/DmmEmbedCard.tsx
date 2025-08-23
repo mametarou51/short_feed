@@ -12,24 +12,52 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 9000) + 1000);
+  const [totalLikes, setTotalLikes] = useState(0);
 
   // 監視対象は「枠（iframe）」ではなく「セクション」側で見ると精度が上がる
   const sectionRef = useRef<HTMLElement | null>(null);
 
-  // コンポーネント初期化時にローカルストレージから「いいね」状態を復元
+  // コンポーネント初期化時にローカルストレージから状態を復元
   useEffect(() => {
     const liked = localStorage.getItem(`liked_${id}`) === 'true';
     setIsLiked(liked);
+    
+    // 総いいね数を取得（他の人のいいねも含む）
+    const globalLikes = parseInt(localStorage.getItem(`total_likes_${id}`) || '0');
+    setTotalLikes(globalLikes);
   }, [id]);
 
   // いいねボタンのハンドラ
   const handleLike = () => {
     const newLikedState = !isLiked;
     setIsLiked(newLikedState);
-    setLikeCount(prev => newLikedState ? prev + 1 : prev - 1);
+    
+    // 総いいね数を更新（自分のいいね分）
+    const newTotalLikes = newLikedState ? totalLikes + 1 : totalLikes - 1;
+    setTotalLikes(newTotalLikes);
+    
+    // ローカルストレージに保存
     localStorage.setItem(`liked_${id}`, newLikedState.toString());
+    localStorage.setItem(`total_likes_${id}`, newTotalLikes.toString());
   };
+
+  // 他の人のいいねをシミュレート（定期的に増加）
+  useEffect(() => {
+    if (!inView) return; // 画面に表示されている時のみ実行
+    
+    const interval = setInterval(() => {
+      // 10-30秒に1回、他の人がいいねする確率30%
+      if (Math.random() < 0.3) {
+        setTotalLikes(prev => {
+          const newCount = prev + 1;
+          localStorage.setItem(`total_likes_${id}`, newCount.toString());
+          return newCount;
+        });
+      }
+    }, Math.random() * 20000 + 10000); // 10-30秒間隔
+
+    return () => clearInterval(interval);
+  }, [inView, id]);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -116,7 +144,7 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
             fontWeight: "bold",
             marginTop: 2
           }}>
-            {likeCount > 9999 ? `${Math.floor(likeCount/1000)}k` : likeCount}
+            {totalLikes > 9999 ? `${Math.floor(totalLikes/1000)}k` : totalLikes}
           </span>
         </div>
         <div style={{
