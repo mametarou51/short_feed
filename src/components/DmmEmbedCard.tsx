@@ -40,6 +40,22 @@ type Props = {
   onUserAction: (behavior: UserBehavior, video: Video) => void;
 };
 
+// 自動再生パラメータを付与
+const withAutoplayParams = (src: string) => {
+  try {
+    const url = new URL(src);
+    url.searchParams.set("autoplay", "1");
+    url.searchParams.set("muted", "1");
+    url.searchParams.set("playsinline", "1");
+    // 一部プロバイダでは mute=1 を見る場合あり
+    url.searchParams.set("mute", "1");
+    return url.toString();
+  } catch {
+    const sep = src.includes("?") ? "&" : "?";
+    return `${src}${sep}autoplay=1&muted=1&playsinline=1&mute=1`;
+  }
+};
+
 export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, onUserAction }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
@@ -85,7 +101,7 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
     const iframe = frameRef.current;
     if (!iframe) return;
     if (inView) {
-      if (!iframe.src || iframe.src === "about:blank") iframe.src = embedSrc;
+      if (!iframe.src || iframe.src === "about:blank") iframe.src = withAutoplayParams(embedSrc);
     } else {
       // ロードを確実に止める
       if (iframe.src && iframe.src !== "about:blank") iframe.src = "about:blank";
