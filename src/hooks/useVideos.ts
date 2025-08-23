@@ -23,7 +23,6 @@ function adaptLegacyVideo(legacyVideo: any): Video {
     title: legacyVideo.title,
     desc: legacyVideo.desc || descFromTags,
     embedSrc: legacyVideo.embedSrc || '',
-    posterUrl: legacyVideo.posterUrl || `https://pics.dmm.co.jp/digital/video/${legacyVideo.id}/${legacyVideo.id}pl.jpg`,
     offer: legacyVideo.offer,
     description: legacyVideo.desc || descFromTags,
     category: primaryCategory,

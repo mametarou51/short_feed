@@ -90,7 +90,6 @@ export default function VideoPlayer({ video, isVisible }: VideoPlayerProps) {
       <video
         ref={videoRef}
         className="video-player"
-        poster={video.posterUrl}
         muted
         loop
         playsInline

@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Video } from '@/types/video';
-import Image from 'next/image';
 
 // DMMのサムネイル画像URLを生成する関数
 function getDmmThumbnailUrl(videoId: string): string {
@@ -24,8 +23,6 @@ type Props = {
 export default function DmmEmbedCard({ video, onUserAction }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [showVideo, setShowVideo] = useState(false);
-  const [thumbnailError, setThumbnailError] = useState(false);
-  const thumbnailUrl = video.posterUrl || getDmmThumbnailUrl(video.id);
 
   // サムネイルクリックで動画表示
   const handleThumbnailClick = () => {
@@ -43,29 +40,10 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
         {/* サムネイルを動画に重ねて表示 */}
         {!showVideo && (
           <div 
-            className={`video-thumbnail ${thumbnailError ? 'error' : ''}`}
+            className={`video-thumbnail`}
             style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2, cursor: 'pointer'}}
             onClick={handleThumbnailClick}
           >
-            {!thumbnailError && (
-              <Image
-                src={thumbnailUrl}
-                alt={`${video.title}のサムネイル`}
-                fill
-                sizes="100vw"
-                className="video-thumbnail-image"
-                onError={() => setThumbnailError(true)}
-                onLoad={() => setThumbnailError(false)}
-                unoptimized
-                priority={false}
-              />
-            )}
-            {thumbnailError && (
-              <div className="thumbnail-fallback">
-                <div className="thumbnail-fallback-icon">🎬</div>
-                <div className="thumbnail-fallback-text">プレビュー</div>
-              </div>
-            )}
           </div>
         )}
         {/* サムネイルクリック後にiframe表示 */}

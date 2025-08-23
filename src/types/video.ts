@@ -11,7 +11,6 @@ export const VideoSchema = z.object({
   title: z.string().min(1),
   desc: z.string().optional(),
   embedSrc: z.string().url(),
-  posterUrl: z.string(),
   offer: OfferSchema,
   description: z.string().optional(),
   category: z.string().optional(),
