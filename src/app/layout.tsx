@@ -33,7 +33,6 @@ export default function RootLayout({
             <div className="nav-links">
               <Link href="/about" className="nav-link">このサイトについて</Link>
               <Link href="/guidelines" className="nav-link">掲載基準</Link>
-              <Link href="/contact" className="nav-link">お問い合わせ</Link>
             </div>
           </nav>
         </header>
@@ -43,7 +42,7 @@ export default function RootLayout({
           <div className="footer-links">
             <Link href="/terms" className="footer-link">利用規約</Link>
             <Link href="/privacy" className="footer-link">プライバシー</Link>
-            <Link href="/contact" className="footer-link">連絡窓口</Link>
+            {/* <Link href="/contact" className="footer-link">連絡窓口</Link> */}
           </div>
           <div className="footer-disclaimer">※本サイトは提携先の公式素材のみを紹介し、著作権を尊重します。</div>
         </footer>

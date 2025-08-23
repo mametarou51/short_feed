@@ -40,22 +40,6 @@ type Props = {
   onUserAction: (behavior: UserBehavior, video: Video) => void;
 };
 
-// 自動再生パラメータを付与
-const withAutoplayParams = (src: string) => {
-  try {
-    const url = new URL(src);
-    url.searchParams.set("autoplay", "1");
-    url.searchParams.set("muted", "1");
-    url.searchParams.set("playsinline", "1");
-    // 一部プロバイダでは mute=1 を見る場合あり
-    url.searchParams.set("mute", "1");
-    return url.toString();
-  } catch {
-    const sep = src.includes("?") ? "&" : "?";
-    return `${src}${sep}autoplay=1&muted=1&playsinline=1&mute=1`;
-  }
-};
-
 export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, onUserAction }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
@@ -101,7 +85,7 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
     const iframe = frameRef.current;
     if (!iframe) return;
     if (inView) {
-      if (!iframe.src || iframe.src === "about:blank") iframe.src = withAutoplayParams(embedSrc);
+      if (!iframe.src || iframe.src === "about:blank") iframe.src = embedSrc;
     } else {
       // ロードを確実に止める
       if (iframe.src && iframe.src !== "about:blank") iframe.src = "about:blank";
@@ -142,7 +126,7 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
       <div className="card-footer">
         <div style={{ fontSize: 12, opacity: .9 }}>{offerName}</div>
         {video.desc && <div style={{ fontSize: 14, opacity: .9, marginBottom: 8 }}>{video.desc}</div>}
-        <div style={{ fontSize: 18, fontWeight: 700, margin: "8px 0" }}>{title}</div>
+        <div style={{ fontSize: 18, fontWeight: 700, margin: "8px 0" }}>{video.title}</div>
         <a
           href={`/go/${id}`}
           onClick={handleCtaClick}
