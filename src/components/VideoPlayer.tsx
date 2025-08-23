@@ -18,6 +18,8 @@ export default function VideoPlayer({ video, isVisible }: VideoPlayerProps) {
     if (!videoElement) return;
 
     async function setupVideo() {
+      if (!videoElement) return;
+      
       const isHLS = video.videoUrl.includes('.m3u8');
       
       if (isHLS && !videoElement.canPlayType('application/vnd.apple.mpegurl')) {
@@ -74,8 +76,13 @@ export default function VideoPlayer({ video, isVisible }: VideoPlayerProps) {
   }, [isVisible, isLoaded]);
 
   const handleCTAClick = () => {
-    // Navigate to the /go/:id endpoint for tracking
-    window.open(`/go/${video.id}`, '_blank');
+    // Navigate to Cloudflare Workers endpoint for tracking
+    // In production, this would be your Workers domain
+    const workersUrl = process.env.NODE_ENV === 'production' 
+      ? `https://your-workers-domain.workers.dev/go/${video.id}`
+      : `/go/${video.id}`;
+    
+    window.open(workersUrl, '_blank');
   };
 
   return (
