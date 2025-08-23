@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'プライバシーポリシー',
+  description: 'Short Feed のプライバシーポリシー。アクセス解析、クッキーの利用、情報の取り扱いについて記載します。',
+}
+
 export default function Page() {
   return (
     <main className="static-page">

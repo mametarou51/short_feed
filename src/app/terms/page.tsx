@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '利用規約',
+  description: 'Short Feed の利用規約。禁止事項、免責事項、規約の変更について記載します。',
+}
+
 export default function Page() {
   return (
     <main className="static-page">

@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '掲載基準',
+  description: 'Short Feed のコンテンツ掲載基準。公式サンプル素材のみの掲載、権利保護、年齢制限などの方針を説明します。',
+}
+
 export default function Page() {
   return (
     <main className="static-page">

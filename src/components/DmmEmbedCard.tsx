@@ -41,9 +41,24 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
         {!showVideo && (
           <div 
             className={`video-thumbnail`}
-            style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2, cursor: 'pointer'}}
+            style={{
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              width: '100%', 
+              height: '100%', 
+              zIndex: 2, 
+              cursor: 'pointer',
+              backgroundImage: `url(${getDmmThumbnailUrl(video.id)})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
             onClick={handleThumbnailClick}
           >
+            <div className="play-button-overlay">
+              <div className="play-button-icon"></div>
+            </div>
           </div>
         )}
         {/* サムネイルクリック後にiframe表示 */}

@@ -1,3 +1,10 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'このサイトについて',
+  description: 'Short Feed は提携先の公式サンプル動画のみを紹介するリンクメディアです。コンテンツ方針や運営方針についてご案内します。',
+}
+
 export default function Page() {
   return (
     <main className="static-page">
