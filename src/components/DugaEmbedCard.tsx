@@ -1,0 +1,159 @@
+"use client";
+import { useRef, useState, useEffect } from "react";
+import { Video } from '@/types/video';
+
+type UserBehavior = {
+  videoId: string;
+  action: 'view' | 'skip' | 'complete' | 'click';
+  duration?: number;
+  timestamp: number;
+};
+
+type Props = {
+  video: Video;
+  onUserAction: (behavior: UserBehavior, video: Video) => void;
+};
+
+export default function DugaEmbedCard({ video, onUserAction }: Props) {
+  const [showVideo, setShowVideo] = useState(false);
+  const thumbnailRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
+
+  // DUGAサムネイル読み込み
+  useEffect(() => {
+    if (thumbnailRef.current) {
+      const container = thumbnailRef.current;
+      
+      // サムネイル用のHTML構造を作成
+      const thumbnailId = `affimage-${video.id}`;
+      container.innerHTML = `<div id="${thumbnailId}"><a href="${video.offer.url}" target="_blank">${video.title}</a></div>`;
+      
+      // サムネイル用スクリプトを読み込み
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = `https://ad.duga.jp/affimage/ppv/${video.id}/1/48475-01`;
+      script.onload = () => {
+        // スクリプト読み込み後にinitAffImage関数を実行
+        if (typeof (window as any).initAffImage === 'function') {
+          (window as any).initAffImage();
+        }
+      };
+      document.body.appendChild(script);
+      
+      return () => {
+        // クリーンアップ
+        container.innerHTML = '';
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      };
+    }
+  }, [video.id, video.offer.url, video.title]);
+
+  // DUGAプレイヤー読み込み
+  useEffect(() => {
+    if (showVideo && playerRef.current) {
+      const container = playerRef.current;
+      
+      // プレイヤー用のHTML構造を作成
+      const playerId = `dugaflvplayer-${video.id}`;
+      container.innerHTML = `
+        <div id="${playerId}" 
+             data-w="540" 
+             data-h="300" 
+             data-o="${playerId}" 
+             data-l="ppv" 
+             data-p="${video.id}" 
+             data-a="48475" 
+             data-b="01">
+          <a href="${video.offer.url}" target="_blank">${video.title}</a>
+        </div>
+      `;
+      
+      // プレイヤー用スクリプトを読み込み（まだ存在しない場合のみ）
+      if (!document.querySelector('script[src="https://ad.duga.jp/flash/dugaflvplayer.js"]')) {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://ad.duga.jp/flash/dugaflvplayer.js';
+        script.defer = true;
+        document.body.appendChild(script);
+      }
+      
+      return () => {
+        // クリーンアップ
+        container.innerHTML = '';
+      };
+    }
+  }, [showVideo, video.id, video.offer.url, video.title]);
+
+  const handleThumbnailClick = () => {
+    setShowVideo(true);
+    onUserAction({
+      videoId: video.id,
+      action: 'click',
+      timestamp: Date.now()
+    }, video);
+  };
+
+  return (
+    <section className="card" aria-label={video.title}>
+      <div className="video-thumbnail-container" style={{position: 'relative'}}>
+        {/* サムネイル表示 */}
+        {!showVideo && (
+          <div 
+            ref={thumbnailRef}
+            className="duga-thumbnail"
+            onClick={handleThumbnailClick}
+            style={{
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              width: '100%', 
+              height: '100%', 
+              zIndex: 2, 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#1a1a1a'
+            }}
+          />
+        )}
+        
+        {/* プレイヤー表示 */}
+        {showVideo && (
+          <div 
+            ref={playerRef}
+            className="duga-video-container"
+            style={{
+              width: '100%', 
+              height: '100%', 
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              zIndex: 1,
+              backgroundColor: '#1a1a1a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          />
+        )}
+      </div>
+
+      <div className="card-footer">
+        <div className="offer-name">{video.offer.name}</div>
+        {video.desc && <div className="video-description">{video.desc}</div>}
+        <div className="video-title">{video.title}</div>
+        <a
+          href={`/go/${video.id}`}
+          onClick={() => onUserAction({ videoId: video.id, action: 'click', timestamp: Date.now() }, video)}
+          rel="sponsored"
+          className="cta-link"
+        >
+          本編へ
+        </a>
+      </div>
+    </section>
+  );
+}

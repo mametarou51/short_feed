@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-import DmmEmbedCard from "@/components/DmmEmbedCard";
+import DugaEmbedCard from "@/components/DugaEmbedCard";
 import { useVideos } from "@/hooks/useVideos";
 import useRecommendationAlgorithm from "@/hooks/useRecommendationAlgorithm";
 
@@ -117,8 +117,8 @@ export default function Home() {
         />
       )}
       {!ok && <AgeGate onAllow={() => setOk(true)} />}
-      {ok && sortedVideos.map(video =>
-        <DmmEmbedCard
+      {ok && sortedVideos.filter(video => video.type === 'duga_iframe').map(video =>
+        <DugaEmbedCard
           key={video.id}
           video={video}
           onUserAction={trackUserBehavior}
