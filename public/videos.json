@@ -4,6 +4,30 @@
     "type": "dmm_iframe",
     "title": "OFJE-505",
     "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=ofje00505/size=1280_720/",
+    "attributes": {
+      "studio": "S1",
+      "genre": [
+        "compilation",
+        "best_of"
+      ],
+      "tags": [
+        "人気女優",
+        "ベスト",
+        "オムニバス"
+      ],
+      "duration": 240,
+      "releaseDate": "2024-01-15",
+      "difficulty": "beginner",
+      "popularity": 8.5,
+      "timeOfDay": [
+        "evening",
+        "night"
+      ],
+      "mood": [
+        "variety",
+        "highlights"
+      ]
+    },
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d1"
@@ -11,9 +35,33 @@
   },
   {
     "id": "d2",
-    "type": "dmm_iframe", 
+    "type": "dmm_iframe",
     "title": "MIDA-210",
     "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=mida00210/size=1280_720/",
+    "attributes": {
+      "studio": "MOODYZ",
+      "genre": [
+        "mature",
+        "milf"
+      ],
+      "tags": [
+        "人妻",
+        "熟女",
+        "ドラマ"
+      ],
+      "duration": 180,
+      "releaseDate": "2024-02-10",
+      "difficulty": "intermediate",
+      "popularity": 7.8,
+      "timeOfDay": [
+        "afternoon",
+        "evening"
+      ],
+      "mood": [
+        "relaxed",
+        "story_driven"
+      ]
+    },
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d2"
@@ -27,6 +75,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d3"
+    },
+    "attributes": {
+      "studio": "SONE",
+      "genre": [
+        "mature",
+        "milf"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 160,
+      "releaseDate": "2024-03-02",
+      "difficulty": "advanced",
+      "popularity": 6.6,
+      "timeOfDay": [
+        "evening",
+        "night"
+      ],
+      "mood": [
+        "intense",
+        "passionate"
+      ]
     }
   },
   {
@@ -37,6 +109,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d4"
+    },
+    "attributes": {
+      "studio": "PRED",
+      "genre": [
+        "schoolgirl",
+        "uniform"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 180,
+      "releaseDate": "2024-04-03",
+      "difficulty": "beginner",
+      "popularity": 6.9,
+      "timeOfDay": [
+        "night",
+        "late_night"
+      ],
+      "mood": [
+        "variety",
+        "highlights"
+      ]
     }
   },
   {
@@ -47,6 +143,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d5"
+    },
+    "attributes": {
+      "studio": "IPZZ",
+      "genre": [
+        "compilation",
+        "best_of"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 200,
+      "releaseDate": "2024-05-04",
+      "difficulty": "intermediate",
+      "popularity": 7.2,
+      "timeOfDay": [
+        "morning",
+        "afternoon"
+      ],
+      "mood": [
+        "romantic",
+        "gentle"
+      ]
     }
   },
   {
@@ -57,6 +177,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d6"
+    },
+    "attributes": {
+      "studio": "JUR",
+      "genre": [
+        "drama",
+        "story"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 220,
+      "releaseDate": "2024-06-05",
+      "difficulty": "advanced",
+      "popularity": 7.5,
+      "timeOfDay": [
+        "afternoon",
+        "evening"
+      ],
+      "mood": [
+        "wild",
+        "adventurous"
+      ]
     }
   },
   {
@@ -67,6 +211,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d7"
+    },
+    "attributes": {
+      "studio": "YUJ",
+      "genre": [
+        "pov",
+        "interactive"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 240,
+      "releaseDate": "2024-07-06",
+      "difficulty": "beginner",
+      "popularity": 7.8,
+      "timeOfDay": [
+        "evening",
+        "night"
+      ],
+      "mood": [
+        "energetic",
+        "upbeat"
+      ]
     }
   },
   {
@@ -77,6 +245,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d8"
+    },
+    "attributes": {
+      "studio": "YMDD",
+      "genre": [
+        "fetish",
+        "specialty"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 260,
+      "releaseDate": "2024-08-07",
+      "difficulty": "intermediate",
+      "popularity": 8.1,
+      "timeOfDay": [
+        "night",
+        "late_night"
+      ],
+      "mood": [
+        "relaxed",
+        "story_driven"
+      ]
     }
   },
   {
@@ -87,6 +279,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d9"
+    },
+    "attributes": {
+      "studio": "S1",
+      "genre": [
+        "solo",
+        "beauty"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 280,
+      "releaseDate": "2024-09-08",
+      "difficulty": "advanced",
+      "popularity": 8.4,
+      "timeOfDay": [
+        "morning",
+        "afternoon"
+      ],
+      "mood": [
+        "intense",
+        "passionate"
+      ]
     }
   },
   {
@@ -97,6 +313,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d10"
+    },
+    "attributes": {
+      "studio": "MOODYZ",
+      "genre": [
+        "threesome",
+        "group"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 300,
+      "releaseDate": "2024-10-09",
+      "difficulty": "beginner",
+      "popularity": 8.7,
+      "timeOfDay": [
+        "afternoon",
+        "evening"
+      ],
+      "mood": [
+        "variety",
+        "highlights"
+      ]
     }
   },
   {
@@ -107,6 +347,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d11"
+    },
+    "attributes": {
+      "studio": "SONE",
+      "genre": [
+        "mature",
+        "milf"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 120,
+      "releaseDate": "2024-11-10",
+      "difficulty": "intermediate",
+      "popularity": 9,
+      "timeOfDay": [
+        "evening",
+        "night"
+      ],
+      "mood": [
+        "romantic",
+        "gentle"
+      ]
     }
   },
   {
@@ -117,6 +381,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d12"
+    },
+    "attributes": {
+      "studio": "PRED",
+      "genre": [
+        "schoolgirl",
+        "uniform"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 140,
+      "releaseDate": "2024-12-11",
+      "difficulty": "advanced",
+      "popularity": 9.3,
+      "timeOfDay": [
+        "night",
+        "late_night"
+      ],
+      "mood": [
+        "wild",
+        "adventurous"
+      ]
     }
   },
   {
@@ -127,6 +415,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d13"
+    },
+    "attributes": {
+      "studio": "IPZZ",
+      "genre": [
+        "compilation",
+        "best_of"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 160,
+      "releaseDate": "2024-01-12",
+      "difficulty": "beginner",
+      "popularity": 9.6,
+      "timeOfDay": [
+        "morning",
+        "afternoon"
+      ],
+      "mood": [
+        "energetic",
+        "upbeat"
+      ]
     }
   },
   {
@@ -137,6 +449,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d14"
+    },
+    "attributes": {
+      "studio": "JUR",
+      "genre": [
+        "drama",
+        "story"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 180,
+      "releaseDate": "2024-02-13",
+      "difficulty": "intermediate",
+      "popularity": 9.9,
+      "timeOfDay": [
+        "afternoon",
+        "evening"
+      ],
+      "mood": [
+        "relaxed",
+        "story_driven"
+      ]
     }
   },
   {
@@ -147,6 +483,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d15"
+    },
+    "attributes": {
+      "studio": "YUJ",
+      "genre": [
+        "pov",
+        "interactive"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 200,
+      "releaseDate": "2024-03-14",
+      "difficulty": "advanced",
+      "popularity": 6.2,
+      "timeOfDay": [
+        "evening",
+        "night"
+      ],
+      "mood": [
+        "intense",
+        "passionate"
+      ]
     }
   },
   {
@@ -157,6 +517,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d16"
+    },
+    "attributes": {
+      "studio": "YMDD",
+      "genre": [
+        "fetish",
+        "specialty"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 220,
+      "releaseDate": "2024-04-15",
+      "difficulty": "beginner",
+      "popularity": 6.5,
+      "timeOfDay": [
+        "night",
+        "late_night"
+      ],
+      "mood": [
+        "variety",
+        "highlights"
+      ]
     }
   },
   {
@@ -167,6 +551,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d17"
+    },
+    "attributes": {
+      "studio": "S1",
+      "genre": [
+        "solo",
+        "beauty"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 240,
+      "releaseDate": "2024-05-16",
+      "difficulty": "intermediate",
+      "popularity": 6.8,
+      "timeOfDay": [
+        "morning",
+        "afternoon"
+      ],
+      "mood": [
+        "romantic",
+        "gentle"
+      ]
     }
   },
   {
@@ -177,6 +585,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d18"
+    },
+    "attributes": {
+      "studio": "MOODYZ",
+      "genre": [
+        "threesome",
+        "group"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 260,
+      "releaseDate": "2024-06-17",
+      "difficulty": "advanced",
+      "popularity": 7.1,
+      "timeOfDay": [
+        "afternoon",
+        "evening"
+      ],
+      "mood": [
+        "wild",
+        "adventurous"
+      ]
     }
   },
   {
@@ -187,6 +619,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d19"
+    },
+    "attributes": {
+      "studio": "SONE",
+      "genre": [
+        "mature",
+        "milf"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 280,
+      "releaseDate": "2024-07-18",
+      "difficulty": "beginner",
+      "popularity": 7.3999999999999995,
+      "timeOfDay": [
+        "evening",
+        "night"
+      ],
+      "mood": [
+        "energetic",
+        "upbeat"
+      ]
     }
   },
   {
@@ -197,6 +653,30 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d20"
+    },
+    "attributes": {
+      "studio": "PRED",
+      "genre": [
+        "schoolgirl",
+        "uniform"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 300,
+      "releaseDate": "2024-08-19",
+      "difficulty": "intermediate",
+      "popularity": 7.7,
+      "timeOfDay": [
+        "night",
+        "late_night"
+      ],
+      "mood": [
+        "relaxed",
+        "story_driven"
+      ]
     }
   },
   {
@@ -207,6 +687,98 @@
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d21"
+    },
+    "attributes": {
+      "studio": "IPZZ",
+      "genre": [
+        "compilation",
+        "best_of"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 120,
+      "releaseDate": "2024-09-20",
+      "difficulty": "advanced",
+      "popularity": 8,
+      "timeOfDay": [
+        "morning",
+        "afternoon"
+      ],
+      "mood": [
+        "intense",
+        "passionate"
+      ]
+    }
+  },
+  {
+    "id": "d22",
+    "type": "dmm_iframe",
+    "title": "SONE-256",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=sone00256/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d22"
+    },
+    "attributes": {
+      "studio": "JUR",
+      "genre": [
+        "drama",
+        "story"
+      ],
+      "tags": [
+        "人気",
+        "おすすめ",
+        "高画質"
+      ],
+      "duration": 140,
+      "releaseDate": "2024-10-21",
+      "difficulty": "beginner",
+      "popularity": 8.3,
+      "timeOfDay": [
+        "afternoon",
+        "evening"
+      ],
+      "mood": [
+        "variety",
+        "highlights"
+      ]
+    }
+  },
+  {
+    "id": "d23",
+    "type": "dmm_iframe",
+    "title": "JUFE-585",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=jufe00585/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d23"
+    },
+    "attributes": {
+      "studio": "JUFE",
+      "genre": [
+        "schoolgirl",
+        "uniform"
+      ],
+      "tags": [
+        "女子大生",
+        "ローション・オイル",
+        "中出し"
+      ],
+      "duration": 160,
+      "releaseDate": "2024-11-22",
+      "difficulty": "intermediate",
+      "popularity": 8.6,
+      "timeOfDay": [
+        "evening",
+        "night"
+      ],
+      "mood": [
+        "energetic",
+        "passionate"
+      ]
     }
   }
 ]
