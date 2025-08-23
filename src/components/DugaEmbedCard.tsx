@@ -142,7 +142,12 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
               justifyContent: 'center',
               backgroundColor: '#1a1a1a'
             }}
-          />
+          >
+            {/* プレイボタンオーバーレイ */}
+            <div className="play-button-overlay">
+              <div className="play-button-icon"></div>
+            </div>
+          </div>
         )}
         
         {/* プレイヤー表示 */}
