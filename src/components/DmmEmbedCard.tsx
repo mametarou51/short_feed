@@ -50,6 +50,8 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
         frameBorder={0}
         allow="autoplay; encrypted-media; picture-in-picture"
         allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
         className="absolute inset-0 w-full h-full object-cover"
         style={{ 
           width: '100%', 
