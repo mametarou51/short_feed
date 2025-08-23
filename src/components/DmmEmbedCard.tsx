@@ -60,17 +60,128 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
         allowFullScreen
       />
 
-      <div className="card-footer">
-        <div style={{ fontSize: 12, opacity: .9 }}>{offerName}</div>
-        <div style={{ fontSize: 18, fontWeight: 700, margin: "8px 0" }}>{title}</div>
+      {/* 右側のアクションボタン */}
+      <div style={{
+        position: "absolute",
+        right: 16,
+        bottom: 100,
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+        zIndex: 10
+      }}>
+        <div style={{
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.2)",
+          backdropFilter: "blur(10px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer"
+        }}>
+          <span style={{ fontSize: 24 }}>❤️</span>
+        </div>
+        <div style={{
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.2)",
+          backdropFilter: "blur(10px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer"
+        }}>
+          <span style={{ fontSize: 24 }}>💬</span>
+        </div>
+        <div style={{
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.2)",
+          backdropFilter: "blur(10px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer"
+        }}>
+          <span style={{ fontSize: 24 }}>📤</span>
+        </div>
+        <div style={{
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.2)",
+          backdropFilter: "blur(10px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer"
+        }}>
+          <span style={{ fontSize: 24 }}>🔖</span>
+        </div>
+      </div>
+
+      {/* 左下のタイトルエリア */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 80,
+        padding: "20px 16px",
+        background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.8))",
+        color: "#fff",
+        zIndex: 10
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            background: "#ff1744",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 12,
+            fontWeight: "bold"
+          }}>
+            {offerName.charAt(0)}
+          </div>
+          <span style={{ fontSize: 14, fontWeight: "bold" }}>@{offerName.toLowerCase()}</span>
+          <button style={{
+            padding: "4px 12px",
+            background: "transparent",
+            border: "1px solid #fff",
+            borderRadius: 4,
+            color: "#fff",
+            fontSize: 12,
+            cursor: "pointer"
+          }}>
+            フォロー
+          </button>
+        </div>
+        <div style={{ fontSize: 15, marginBottom: 12, lineHeight: "1.4" }}>
+          {title} #大人の動画 #おすすめ #viral
+        </div>
         <a
           href={`/go/${id}`}
           style={{
-            display: "inline-flex", padding: "10px 16px",
-            background: "#fff", color: "#000", borderRadius: 8, fontWeight: 600
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 16px",
+            background: "#ff1744",
+            color: "#fff",
+            borderRadius: 25,
+            fontWeight: 600,
+            fontSize: 14,
+            textDecoration: "none"
           }}
         >
-          本編へ
+          <span>▶️</span>
+          本編を見る
         </a>
       </div>
     </section>

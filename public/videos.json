@@ -148,5 +148,25 @@
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d15"
     }
+  },
+  {
+    "id": "d16",
+    "type": "dmm_iframe",
+    "title": "YUJ-036",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=yuj00036/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d16"
+    }
+  },
+  {
+    "id": "d17",
+    "type": "dmm_iframe",
+    "title": "SONE-689",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=sone00689/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d17"
+    }
   }
 ]
