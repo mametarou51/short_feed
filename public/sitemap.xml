@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://short-feed.pages.dev/</loc>
     <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
+    <changefreq>hourly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://short-feed.pages.dev/sample_img/240x180.jpg</image:loc>
+      <image:caption>ショートポルノ動画 Short Feed - YouTubeショート風縦スクロール無料エロ動画・人気AV女優・素人・巨乳まとめサイト</image:caption>
+      <image:title>Short Feed - ショートポルノ縦スクロール動画メインページ</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://short-feed.pages.dev/about</loc>

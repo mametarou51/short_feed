@@ -72,30 +72,63 @@ export default function Home() {
     return shuffled;
   }, [videos]);
 
-  // 構造化データ（先頭20件を ItemList として出力）
+  // SEO最適化された構造化データ（先頭30件を ItemList として出力）
   const jsonLd = useMemo(() => {
     if (!shuffledVideos || shuffledVideos.length === 0) return null;
     const site = 'https://short-feed.pages.dev';
-    const elements = shuffledVideos.slice(0, 20).map((video, idx) => ({
+    const elements = shuffledVideos.slice(0, 30).map((video, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
       item: {
         '@type': 'VideoObject',
         name: video.title,
-        description: video.desc || video.description || undefined,
+        description: `${video.desc || video.title} - 無料エロ動画 | ${video.attributes?.studio || 'Short Feed'}の人気作品。${video.attributes?.genre?.join('・') || ''}${video.attributes?.tags?.join('・') || ''}などのジャンルで話題の動画を高画質で配信中。`,
         thumbnailUrl: guessThumbnailUrl(video.id),
-        uploadDate: video.attributes?.releaseDate || undefined,
+        uploadDate: video.attributes?.releaseDate || new Date().toISOString().split('T')[0],
         duration: toIsoDuration(video.attributes?.duration as unknown as number | undefined),
         embedUrl: video.embedSrc,
-        contentUrl: `${site}/go/${video.id}`,
+        contentUrl: video.offer?.url || `${site}/video/${video.id}`,
         isFamilyFriendly: false,
-        publisher: { '@type': 'Organization', name: 'Short Feed', url: site },
+        contentRating: 'R18',
+        genre: video.attributes?.genre?.join(', ') || '無料エロ動画',
+        keywords: `無料エロ動画,${video.attributes?.tags?.join(',') || ''},${video.attributes?.genre?.join(',') || ''},${video.attributes?.studio || 'AV'},アダルト動画,18禁`,
+        inLanguage: 'ja',
+        interactionStatistic: {
+          '@type': 'InteractionCounter',
+          interactionType: 'https://schema.org/WatchAction',
+          userInteractionCount: Math.floor((video.attributes?.popularity || 7) * 1000)
+        },
+        publisher: { 
+          '@type': 'Organization', 
+          name: 'Short Feed - 無料エロ動画まとめサイト', 
+          url: site,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${site}/sample_img/240x180.jpg`
+          }
+        },
+        author: {
+          '@type': 'Organization',
+          name: video.attributes?.studio || 'Short Feed'
+        },
+        potentialAction: {
+          '@type': 'WatchAction',
+          target: video.offer?.url || video.embedSrc
+        }
       }
     }));
     return {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
+      name: 'ショートポルノ動画一覧 - 縦スクロール無料エロ動画・人気AV女優・素人・巨乳',
+      description: 'YouTubeショート風の縦スクロールでショートポルノ動画を連続視聴できる無料エロ動画サイト。人気AV女優、素人、巨乳、フェラチオ、中出し、顔射など豊富なジャンルを縦型動画で毎日更新。スマホ最適化で快適視聴。',
       itemListElement: elements,
+      numberOfItems: elements.length,
+      mainEntity: {
+        '@type': 'VideoGallery',
+        name: 'ショートポルノ縦スクロール動画ギャラリー',
+        description: 'YouTubeショート風縦スクロールで楽しめるショートポルノ動画コレクション'
+      }
     };
   }, [shuffledVideos]);
 

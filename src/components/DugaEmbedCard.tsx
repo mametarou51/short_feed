@@ -176,12 +176,13 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
         {video.desc && <div className="video-description">{video.desc}</div>}
         <div className="video-title">{video.title}</div>
         <a
-          href={`/go/${video.id}`}
+          href={video.offer.url}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
           onClick={() => onUserAction({ videoId: video.id, action: 'click', timestamp: Date.now() }, video)}
-          rel="sponsored"
           className="cta-link"
         >
-          本編へ
+          本編を見る
         </a>
       </div>
     </section>

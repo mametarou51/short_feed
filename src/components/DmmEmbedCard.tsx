@@ -31,29 +31,11 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
   const [thumbnailError, setThumbnailError] = useState(false);
   const dugaThumbnailRef = useRef<HTMLDivElement>(null);
 
-  // DUGAサムネイル読み込み
+  // DUGAサムネイル読み込み（無効化）
   useEffect(() => {
+    // DUGAサムネイルは表示しない
     if (video.type === 'duga_iframe' && dugaThumbnailRef.current) {
-      const container = dugaThumbnailRef.current;
-      
-      // サムネイル用のHTML構造を作成
-      container.innerHTML = `
-        <div id="affimage-${video.id}">
-          <a href="${video.offer.url}" target="_blank">${video.title}</a>
-        </div>
-      `;
-      
-      // サムネイル用スクリプトを読み込み
-      const thumbnailScript = document.createElement('script');
-      thumbnailScript.type = 'text/javascript';
-      thumbnailScript.src = `https://ad.duga.jp/affimage/ppv/${video.id}/1/48475-01`;
-      thumbnailScript.async = true;
-      container.appendChild(thumbnailScript);
-      
-      return () => {
-        // クリーンアップ
-        container.innerHTML = '';
-      };
+      // サムネイルなしで直接プレイボタンを表示
     }
   }, [video.type, video.id, video.offer.url, video.title]);
 
@@ -130,10 +112,22 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
         {!showVideo && (
           video.type === 'duga_iframe' ? (
             <div 
-              ref={dugaThumbnailRef}
-              className="duga-thumbnail"
+              className="duga-thumbnail-placeholder"
               onClick={handleThumbnailClick}
-            />
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#1a1a1a',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <div className="play-button-overlay">
+                <div className="play-button-icon"></div>
+              </div>
+            </div>
           ) : (
             <div 
               className={`video-thumbnail custom-thumbnail-bg`}
@@ -169,12 +163,13 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
         {video.desc && <div className="video-description">{video.desc}</div>}
         <div className="video-title">{video.title}</div>
         <a
-          href={`/go/${video.id}`}
+          href={video.offer.url}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
           onClick={() => onUserAction({ videoId: video.id, action: 'click', timestamp: Date.now() }, video)}
-          rel="sponsored"
           className="cta-link"
         >
-          本編へ
+          本編を見る
         </a>
       </div>
     </section>

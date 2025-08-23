@@ -1,3 +1,45 @@
 User-agent: *
 Allow: /
+
+# SEO最適化された検索エンジン設定
+Allow: /about
+Allow: /guidelines  
+Allow: /terms
+Allow: /privacy
+Allow: /video/*
+Allow: /category/*
+
+# 不要なクロールを防止してパフォーマンス向上
+Disallow: /admin
+Disallow: /api
+Disallow: /_next
+Disallow: /node_modules
+Disallow: /*.json$
+Disallow: /*.css$
+Disallow: /*.js$
+
+# 検索エンジン別最適化設定
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 3
+
+# Yahoo検索エンジン
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+# 広告クローラー許可
+User-agent: AdsBot-Google
+Allow: /
+
+# サイトマップ最適化
 Sitemap: https://short-feed.pages.dev/sitemap.xml
+Sitemap: https://short-feed.pages.dev/video-sitemap.xml

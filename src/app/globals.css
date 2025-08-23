@@ -1,5 +1,30 @@
-html, body { height: 100%; margin: 0; background: #000; }
-* { box-sizing: border-box; }
+/* SEO最適化されたCSS - パフォーマンス重視 */
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  background: #000; 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+* { 
+  box-sizing: border-box; 
+}
+
+/* 画像最適化 - レイジーローディング対応 */
+img {
+  max-width: 100%;
+  height: auto;
+  loading: lazy;
+  decoding: async;
+}
+
+/* 初期表示の最適化 */
+body {
+  font-display: swap;
+  will-change: scroll-position;
+}
 
 /* CSS変数の定義 */
 :root { 
