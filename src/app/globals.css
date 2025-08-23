@@ -131,10 +131,11 @@ main, .feed {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  padding: 20px 16px;
+  padding: 24px 16px;
   color: #fff;
-  background: linear-gradient(180deg, transparent, rgba(0,0,0,.8));
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,.9) 100%);
   z-index: 10;
+  max-height: 30vh; /* フッターの最大高さを30%に制限 */
 }
 
 /* タイトルを大きく表示 */
@@ -615,6 +616,7 @@ main, .feed {
   height: 100%;
   flex: 1;
   overflow: hidden;
+  min-height: 70vh; /* サムネイルエリアの最小高さを70%に設定 */
 }
 
 .video-thumbnail {
@@ -971,8 +973,6 @@ textarea.form-control {
   max-width: none !important;
   max-height: none !important;
   object-fit: cover;
-  transform: scale(2.5); /* サムネイルを2.5倍に拡大 */
-  transform-origin: center center;
 }
 
 .duga-thumbnail a {
@@ -989,8 +989,6 @@ textarea.form-control {
   height: 100% !important;
   object-fit: cover;
   pointer-events: none; /* 画像のクリックも無効化 */
-  transform: scale(2.5); /* サムネイルを2.5倍に拡大 */
-  transform-origin: center center;
 }
 
 /* DUGA video player styles */
