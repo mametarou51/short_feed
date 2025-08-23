@@ -61,13 +61,22 @@ export default function Home() {
     setOk(!!localStorage.getItem("agreed18"));
   }, []);
 
-  const sortedVideos = sortVideosByRecommendation(videos);
+  // 完全ランダムシャッフル
+  const shuffledVideos = useMemo(() => {
+    if (!videos || videos.length === 0) return [];
+    const shuffled = [...videos];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [videos]);
 
   // 構造化データ（先頭20件を ItemList として出力）
   const jsonLd = useMemo(() => {
-    if (!sortedVideos || sortedVideos.length === 0) return null;
+    if (!shuffledVideos || shuffledVideos.length === 0) return null;
     const site = 'https://short-feed.pages.dev';
-    const elements = sortedVideos.slice(0, 20).map((video, idx) => ({
+    const elements = shuffledVideos.slice(0, 20).map((video, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
       item: {
@@ -88,7 +97,7 @@ export default function Home() {
       '@type': 'ItemList',
       itemListElement: elements,
     };
-  }, [sortedVideos]);
+  }, [shuffledVideos]);
 
   if (loading) {
     return (
@@ -117,7 +126,7 @@ export default function Home() {
         />
       )}
       {!ok && <AgeGate onAllow={() => setOk(true)} />}
-      {ok && sortedVideos.filter(video => video.type === 'duga_iframe').map(video =>
+      {ok && shuffledVideos.filter(video => video.type === 'duga_iframe').map(video =>
         <DugaEmbedCard
           key={video.id}
           video={video}
