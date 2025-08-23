@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Video } from '@/types/video';
+import Image from 'next/image';
 
 // DMMのサムネイル画像URLを生成する関数
 function getDmmThumbnailUrl(videoId: string): string {
@@ -101,12 +102,16 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
             className={`video-thumbnail ${thumbnailError ? 'error' : ''}`}
           >
             {!thumbnailError && (
-              <img 
-                src={thumbnailUrl} 
+              <Image
+                src={thumbnailUrl}
                 alt={`${video.title}のサムネイル`}
+                fill
+                sizes="100vw"
                 className="video-thumbnail-image"
                 onError={() => setThumbnailError(true)}
                 onLoad={() => setThumbnailError(false)}
+                unoptimized
+                priority={false}
               />
             )}
             {thumbnailError && (

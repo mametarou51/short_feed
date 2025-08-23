@@ -5,23 +5,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Referrer-Policy',
-            value: 'no-referrer-when-downgrade',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-        ],
-      },
-    ]
-  },
+  // Note: headers are managed via `public/_headers` for static hosting (e.g. Cloudflare Pages)
 }
 
 module.exports = nextConfig;
