@@ -128,15 +128,16 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
           ref={frameRef}
           title={video.title}
           className={`video-iframe ${!inView ? 'hidden' : ''}`}
-          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          sandbox="allow-forms allow-scripts allow-presentation allow-same-origin"
           allow="autoplay; encrypted-media; picture-in-picture"
           scrolling="no"
           frameBorder={0}
           allowFullScreen
-        />
+          height="100%"
+          src="about:blank" // 初期状態は空
+        ></iframe>
       </div>
-
-      <div className="card-footer">
+      <div className="video-info">
         <div className="offer-name">{video.offer.name}</div>
         {video.description && <div className="video-description">{video.description}</div>}
         <div className="video-title">{video.title}</div>
