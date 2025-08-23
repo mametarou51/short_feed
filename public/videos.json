@@ -2,7 +2,7 @@
   {
     "id": "d1",
     "type": "dmm_iframe",
-    "title": "サンプル動画1",
+    "title": "OFJE-505",
     "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=ofje00505/size=1280_720/",
     "offer": {
       "name": "DMM",
@@ -12,8 +12,8 @@
   {
     "id": "d2",
     "type": "dmm_iframe", 
-    "title": "サンプル動画2",
-    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=pkpr00012/size=1280_720/",
+    "title": "MIDA-210",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=mida00210/size=1280_720/",
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d2"
@@ -22,11 +22,41 @@
   {
     "id": "d3",
     "type": "dmm_iframe",
-    "title": "サンプル動画3",
-    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=stars00123/size=1280_720/",
+    "title": "SONE-713",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=sone00713/size=1280_720/",
     "offer": {
       "name": "DMM",
       "url": "https://example.com/your_aff?vid=d3"
+    }
+  },
+  {
+    "id": "d4",
+    "type": "dmm_iframe",
+    "title": "SONE-638",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=sone00638/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d4"
+    }
+  },
+  {
+    "id": "d5",
+    "type": "dmm_iframe",
+    "title": "SONE-853",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=sone00853/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d5"
+    }
+  },
+  {
+    "id": "d6",
+    "type": "dmm_iframe",
+    "title": "SONE-605",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=sone00605/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d6"
     }
   }
 ]

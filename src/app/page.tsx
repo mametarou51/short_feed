@@ -21,8 +21,12 @@ export default function Home() {
 
   return (
     <main
-      className="h-[100svh] overflow-y-scroll bg-black"
-      style={{ scrollSnapType: "y mandatory" }}
+      className="h-[100svh] overflow-y-scroll bg-black w-full"
+      style={{ 
+        scrollSnapType: "y mandatory",
+        scrollBehavior: "smooth",
+        WebkitOverflowScrolling: "touch"
+      }}
     >
       {!ageOk && (
         <div

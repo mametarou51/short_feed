@@ -38,38 +38,54 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
 
   return (
     <section
-      className="relative h-[100svh] snap-start bg-black"
+      className="relative h-[100svh] w-full snap-start bg-black overflow-hidden"
       aria-label={title}
     >
-      {/* 16:9 埋め込みをセンタリング（レタボックス） */}
-      <div className="absolute inset-0 grid place-items-center">
-        <div style={{ width: "100%", maxWidth: 720, aspectRatio: "16/9" }}>
-          <iframe
-            ref={iframeRef}
-            title={title}
-            // src は IO で付与/削除する
-            scrolling="no"
-            frameBorder={0}
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full"
-          />
+      {/* 全画面iframe（YouTubeショート風） */}
+      <iframe
+        ref={iframeRef}
+        title={title}
+        // src は IO で付与/削除する
+        scrolling="no"
+        frameBorder={0}
+        allow="autoplay; encrypted-media; picture-in-picture"
+        allowFullScreen
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ 
+          width: '100%', 
+          height: '100%',
+          border: 'none',
+          objectFit: 'cover'
+        }}
+      />
+
+      {/* 右下のCTAエリア（YouTubeショート風） */}
+      <div className="absolute bottom-0 right-0 p-4 z-20">
+        <div className="flex flex-col items-end space-y-3">
+          <a
+            href={`/go/${id}`}
+            className="bg-white bg-opacity-90 backdrop-blur-sm text-black px-6 py-3 rounded-full font-bold text-sm shadow-lg hover:bg-opacity-100 transition-all"
+          >
+            本編へ →
+          </a>
         </div>
       </div>
 
-      {/* 画面下オーバーレイ（CTA） */}
-      <div
-        className="absolute inset-x-0 bottom-0 z-10 p-4 text-white"
-        style={{ background: "linear-gradient(180deg,transparent,rgba(0,0,0,.6))" }}
-      >
-        <div className="text-sm opacity-90">{offerName}</div>
-        <div className="text-lg font-semibold mb-3 line-clamp-2">{title}</div>
-        <a
-          href={`/go/${id}`}
-          className="inline-flex items-center justify-center rounded-md bg-white text-black px-4 py-2 font-medium"
+      {/* 左下のタイトルエリア（YouTubeショート風） */}
+      <div className="absolute bottom-0 left-0 right-20 p-4 z-10">
+        <div
+          className="text-white"
+          style={{ 
+            background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.7))",
+            borderRadius: "12px 12px 0 0",
+            padding: "20px 16px 16px"
+          }}
         >
-          本編へ
-        </a>
+          <div className="text-xs opacity-80 mb-1">{offerName}</div>
+          <div className="text-base font-medium leading-tight line-clamp-2">
+            {title}
+          </div>
+        </div>
       </div>
     </section>
   );
