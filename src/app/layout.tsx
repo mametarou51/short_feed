@@ -2,9 +2,14 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Short Videos',
+  title: 'Short Feed',
   description: 'Vertical scrolling short video experience',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({
@@ -14,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body style={{margin:0, background:"#000"}}>{children}</body>
     </html>
   )
 }

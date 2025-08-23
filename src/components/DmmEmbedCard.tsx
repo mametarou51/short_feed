@@ -9,85 +9,68 @@ type Props = {
 };
 
 export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) {
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
 
-  // 可視・不可視を監視
+  // 監視対象は「枠（iframe）」ではなく「セクション」側で見ると精度が上がる
+  const sectionRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
-    const el = iframeRef.current;
+    const el = sectionRef.current;
     if (!el) return;
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => setInView(e.isIntersecting)),
-      { threshold: 0.6 }
+      { threshold: 0.9 } // ほぼ全体が見えた時だけON
     );
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
-  // 見えたら src を付与、外れたらアンロード
+  // 見えたらsrcを入れる、外れたらアンロード（再入場時は最初から）
   useEffect(() => {
-    const el = iframeRef.current;
-    if (!el) return;
+    const iframe = frameRef.current;
+    if (!iframe) return;
     if (inView) {
-      // 既に同一URLなら再代入しない（チラつき防止）
-      if (!el.src || el.src === "about:blank") el.src = embedSrc;
+      if (!iframe.src || iframe.src === "about:blank") iframe.src = embedSrc;
     } else {
-      el.src = "about:blank";
+      // ロードを確実に止める
+      if (iframe.src && iframe.src !== "about:blank") iframe.src = "about:blank";
     }
   }, [inView, embedSrc]);
 
   return (
-    <section
-      className="relative h-[100svh] w-full snap-start bg-black overflow-hidden"
-      aria-label={title}
-    >
-      {/* 全画面iframe（YouTubeショート風） */}
-      <iframe
-        ref={iframeRef}
-        title={title}
-        // src は IO で付与/削除する
-        scrolling="no"
-        frameBorder={0}
-        allow="autoplay; encrypted-media; picture-in-picture"
-        allowFullScreen
-        referrerPolicy="no-referrer-when-downgrade"
-        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ 
-          width: '100%', 
-          height: '100%',
-          border: 'none',
-          objectFit: 'cover'
-        }}
-      />
-
-      {/* 右下のCTAエリア（YouTubeショート風） */}
-      <div className="absolute bottom-0 right-0 p-4 z-20">
-        <div className="flex flex-col items-end space-y-3">
-          <a
-            href={`/go/${id}`}
-            className="bg-white bg-opacity-90 backdrop-blur-sm text-black px-6 py-3 rounded-full font-bold text-sm shadow-lg hover:bg-opacity-100 transition-all"
-          >
-            本編へ →
-          </a>
+    <section ref={sectionRef} className="card" aria-label={title}>
+      {/* 16:9を画面中央に最大サイズで配置（上下黒帯） */}
+      <div style={{
+        position: "absolute", inset: 0, display: "grid", placeItems: "center"
+      }}>
+        <div style={{ width: "100%", maxWidth: 720, aspectRatio: "16/9" }}>
+          <iframe
+            ref={frameRef}
+            title={title}
+            // srcはIOで制御
+            className="w-full h-full"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            scrolling="no"
+            frameBorder={0}
+            allowFullScreen
+          />
         </div>
       </div>
 
-      {/* 左下のタイトルエリア（YouTubeショート風） */}
-      <div className="absolute bottom-0 left-0 right-20 p-4 z-10">
-        <div
-          className="text-white"
-          style={{ 
-            background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.7))",
-            borderRadius: "12px 12px 0 0",
-            padding: "20px 16px 16px"
+      <div className="card-footer">
+        <div style={{ fontSize: 12, opacity: .9 }}>{offerName}</div>
+        <div style={{ fontSize: 18, fontWeight: 700, margin: "8px 0" }}>{title}</div>
+        <a
+          href={`/go/${id}`}
+          style={{
+            display: "inline-flex", padding: "10px 16px",
+            background: "#fff", color: "#000", borderRadius: 8, fontWeight: 600
           }}
         >
-          <div className="text-xs opacity-80 mb-1">{offerName}</div>
-          <div className="text-base font-medium leading-tight line-clamp-2">
-            {title}
-          </div>
-        </div>
+          本編へ
+        </a>
       </div>
     </section>
   );

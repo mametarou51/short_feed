@@ -1,17 +1,5 @@
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
+html, body { height: 100%; margin: 0; background: #000; }
+* { box-sizing: border-box; }
 
 body {
   color: white;
@@ -20,6 +8,42 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* iOSアドレスバー収縮対策 */
+main, .feed {
+  height: 100svh;  /* safe viewport height */
+}
+
+/* ショート風スナップ */
+.feed {
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain; /* バウンドを抑える */
+}
+
+.card {
+  position: relative;
+  height: 100svh;
+  scroll-snap-align: start;
+  background: #000;
+}
+
+/* 画面下オーバーレイ */
+.card-footer {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 16px;
+  color: #fff;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.6));
+}
+
+/* 検索バー等の余白を潰す（iOS Safariで見栄えを安定） */
+:root { --safe: env(safe-area-inset-bottom); }
+.card-footer { padding-bottom: calc(16px + var(--safe)); }
 
 /* Vertical snap scrolling container */
 .snap-container {
