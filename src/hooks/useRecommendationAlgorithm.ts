@@ -1,27 +1,6 @@
 "use client";
-import { useEffect, useState, useCallback } from 'react';
-
-type Video = {
-  id: string;
-  type: string;
-  title: string;
-  embedSrc: string;
-  attributes: {
-    studio: string;
-    genre: string[];
-    tags: string[];
-    duration: number;
-    releaseDate: string;
-    difficulty: string;
-    popularity: number;
-    timeOfDay: string[];
-    mood: string[];
-  };
-  offer: {
-    name: string;
-    url: string;
-  };
-};
+import { useState, useCallback } from 'react';
+import { Video } from '@/types/video';
 
 type UserBehavior = {
   videoId: string;
@@ -32,181 +11,135 @@ type UserBehavior = {
 
 type UserProfile = {
   preferredGenres: { [key: string]: number };
-  preferredStudios: { [key: string]: number };
-  preferredMoods: { [key: string]: number };
-  preferredTimeOfDay: { [key: string]: number };
-  preferredDifficulty: { [key: string]: number };
-  avgWatchTime: number;
+  preferredCategories: { [key: string]: number };
   totalInteractions: number;
 };
 
 export default function useRecommendationAlgorithm() {
-  const [userProfile, setUserProfile] = useState<UserProfile>({
-    preferredGenres: {},
-    preferredStudios: {},
-    preferredMoods: {},
-    preferredTimeOfDay: {},
-    preferredDifficulty: {},
-    avgWatchTime: 0,
-    totalInteractions: 0,
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('userProfile');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          // エラーの場合はデフォルト値を使用
+        }
+      }
+    }
+    return {
+      preferredGenres: {},
+      preferredCategories: {},
+      totalInteractions: 0,
+    };
   });
 
-  // ローカルストレージからユーザープロファイルを読み込み
-  useEffect(() => {
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      setUserProfile(JSON.parse(savedProfile));
-    }
-  }, []);
-
-  // ユーザープロファイルをローカルストレージに保存
-  const saveUserProfile = useCallback((profile: UserProfile) => {
-    setUserProfile(profile);
-    localStorage.setItem('userProfile', JSON.stringify(profile));
-  }, []);
-
-  // ユーザー行動を記録し、プロファイルを更新
   const trackUserBehavior = useCallback((behavior: UserBehavior, video: Video) => {
-    const updatedProfile = { ...userProfile };
-    updatedProfile.totalInteractions += 1;
-
-    // 行動に基づいてスコアを調整
-    const weight = getActionWeight(behavior.action, behavior.duration || 0, video.attributes.duration);
+    console.log('User behavior tracked:', behavior, video.title);
     
-    // ジャンル学習
-    video.attributes.genre.forEach(genre => {
-      updatedProfile.preferredGenres[genre] = (updatedProfile.preferredGenres[genre] || 0) + weight;
-    });
+    // 行動に基づく重み
+    let weight = 1;
+    switch (behavior.action) {
+      case 'complete':
+        weight = 3;
+        break;
+      case 'view':
+        weight = 2;
+        break;
+      case 'click':
+        weight = 2;
+        break;
+      case 'skip':
+        weight = -1;
+        break;
+    }
 
-    // スタジオ学習
-    updatedProfile.preferredStudios[video.attributes.studio] = 
-      (updatedProfile.preferredStudios[video.attributes.studio] || 0) + weight;
-
-    // ムード学習
-    video.attributes.mood.forEach(mood => {
-      updatedProfile.preferredMoods[mood] = (updatedProfile.preferredMoods[mood] || 0) + weight;
-    });
-
-    // 時間帯学習
-    const currentHour = new Date().getHours();
-    const currentTimeSlot = getTimeSlot(currentHour);
-    video.attributes.timeOfDay.forEach(timeSlot => {
-      if (timeSlot === currentTimeSlot) {
-        updatedProfile.preferredTimeOfDay[timeSlot] = 
-          (updatedProfile.preferredTimeOfDay[timeSlot] || 0) + weight * 1.5; // 時間帯マッチに追加ボーナス
+    const updatedProfile = { ...userProfile };
+    
+    // カテゴリ学習
+    if (video.category) {
+      updatedProfile.preferredCategories[video.category] = 
+        (updatedProfile.preferredCategories[video.category] || 0) + weight;
+    }
+    
+    // タグ学習
+    if (video.tags) {
+      video.tags.forEach(tag => {
+        updatedProfile.preferredGenres[tag] = 
+          (updatedProfile.preferredGenres[tag] || 0) + weight;
+      });
+    }
+    
+    updatedProfile.totalInteractions++;
+    
+    setUserProfile(updatedProfile);
+    
+    // LocalStorageに保存
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+      
+      // 行動履歴も保存
+      const history = JSON.parse(localStorage.getItem('userBehavior') || '[]');
+      history.push({
+        ...behavior,
+        videoTitle: video.title,
+        category: video.category
+      });
+      
+      // 最新100件のみ保持
+      if (history.length > 100) {
+        history.splice(0, history.length - 100);
       }
-    });
-
-    // 難易度学習
-    updatedProfile.preferredDifficulty[video.attributes.difficulty] = 
-      (updatedProfile.preferredDifficulty[video.attributes.difficulty] || 0) + weight;
-
-    // 平均視聴時間の更新
-    if (behavior.duration) {
-      updatedProfile.avgWatchTime = 
-        (updatedProfile.avgWatchTime * (updatedProfile.totalInteractions - 1) + behavior.duration) / 
-        updatedProfile.totalInteractions;
+      
+      localStorage.setItem('userBehavior', JSON.stringify(history));
     }
-
-    saveUserProfile(updatedProfile);
-  }, [userProfile, saveUserProfile]);
-
-  // 動画の推薦スコアを計算
-  const calculateRecommendationScore = useCallback((video: Video): number => {
-    let score = 0;
-
-    // 基本人気度スコア (0-1)
-    score += video.attributes.popularity / 10;
-
-    // ジャンル適合度 (0-2)
-    const genreScore = video.attributes.genre.reduce((sum, genre) => {
-      return sum + (userProfile.preferredGenres[genre] || 0);
-    }, 0) / Math.max(video.attributes.genre.length, 1);
-    score += Math.min(genreScore / 10, 2);
-
-    // スタジオ適合度 (0-1)
-    const studioScore = (userProfile.preferredStudios[video.attributes.studio] || 0) / 10;
-    score += Math.min(studioScore, 1);
-
-    // ムード適合度 (0-1.5)
-    const moodScore = video.attributes.mood.reduce((sum, mood) => {
-      return sum + (userProfile.preferredMoods[mood] || 0);
-    }, 0) / Math.max(video.attributes.mood.length, 1);
-    score += Math.min(moodScore / 10, 1.5);
-
-    // 時間帯適合度 (0-2)
-    const currentHour = new Date().getHours();
-    const currentTimeSlot = getTimeSlot(currentHour);
-    const timeScore = video.attributes.timeOfDay.includes(currentTimeSlot) ? 
-      (userProfile.preferredTimeOfDay[currentTimeSlot] || 0) / 5 : 0;
-    score += Math.min(timeScore, 2);
-
-    // 難易度適合度 (0-1)
-    const difficultyScore = (userProfile.preferredDifficulty[video.attributes.difficulty] || 0) / 10;
-    score += Math.min(difficultyScore, 1);
-
-    // 新規性ボーナス (視聴履歴にない動画にボーナス) (0-1)
-    const hasWatched = localStorage.getItem(`watched_${video.id}`);
-    if (!hasWatched) {
-      score += 1;
-    }
-
-    // 適切な長さボーナス (0-0.5)
-    const durationFit = 1 - Math.abs(video.attributes.duration - userProfile.avgWatchTime) / 300;
-    score += Math.max(durationFit * 0.5, 0);
-
-    // 最新性ボーナス (0-0.5)
-    const releaseDate = new Date(video.attributes.releaseDate);
-    const daysSinceRelease = (Date.now() - releaseDate.getTime()) / (1000 * 60 * 60 * 24);
-    const recencyBonus = Math.max(0.5 - daysSinceRelease / 365, 0);
-    score += recencyBonus;
-
-    return Math.max(score, 0.1); // 最小スコア保証
   }, [userProfile]);
 
-  // 推薦アルゴリズムでソート
+  const calculateVideoScore = useCallback((video: Video): number => {
+    let score = Math.random() * 0.5; // ベーススコア
+    
+    // カテゴリスコア
+    if (video.category && userProfile.preferredCategories[video.category]) {
+      score += userProfile.preferredCategories[video.category] / 10;
+    }
+    
+    // タグスコア
+    if (video.tags && video.tags.length > 0) {
+      const tagScore = video.tags.reduce((sum, tag) => {
+        return sum + (userProfile.preferredGenres[tag] || 0);
+      }, 0) / video.tags.length;
+      score += tagScore / 20;
+    }
+    
+    // 公式コンテンツには少しボーナス
+    if (video.isOfficial) {
+      score += 0.1;
+    }
+    
+    return Math.max(0, score);
+  }, [userProfile]);
+
   const sortVideosByRecommendation = useCallback((videos: Video[]): Video[] => {
-    return [...videos].sort((a, b) => {
-      const scoreA = calculateRecommendationScore(a);
-      const scoreB = calculateRecommendationScore(b);
-      
-      // スコアが同じ場合はランダム要素を追加
-      if (Math.abs(scoreA - scoreB) < 0.1) {
-        return Math.random() - 0.5;
-      }
-      
-      return scoreB - scoreA;
-    });
-  }, [calculateRecommendationScore]);
+    if (!videos || videos.length === 0) return [];
+    
+    // 初回訪問者や学習データが少ない場合はランダム
+    if (userProfile.totalInteractions < 5) {
+      return [...videos].sort(() => Math.random() - 0.5);
+    }
+    
+    // スコアに基づいてソート
+    return videos
+      .map(video => ({
+        video,
+        score: calculateVideoScore(video)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.video);
+  }, [userProfile, calculateVideoScore]);
 
   return {
     userProfile,
     trackUserBehavior,
     sortVideosByRecommendation,
-    calculateRecommendationScore
   };
-}
-
-// ヘルパー関数
-function getActionWeight(action: string, watchDuration: number, totalDuration: number): number {
-  switch (action) {
-    case 'skip':
-      return watchDuration < totalDuration * 0.1 ? -2 : -0.5;
-    case 'view':
-      return watchDuration / totalDuration * 3; // 視聴率に基づく重み
-    case 'complete':
-      return 5;
-    case 'click':
-      return 3;
-    default:
-      return 0;
-  }
-}
-
-function getTimeSlot(hour: number): string {
-  if (hour >= 6 && hour < 12) return 'morning';
-  if (hour >= 12 && hour < 17) return 'afternoon';
-  if (hour >= 17 && hour < 22) return 'evening';
-  if (hour >= 22 || hour < 2) return 'night';
-  return 'late_night';
 }

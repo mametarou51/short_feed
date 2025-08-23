@@ -1,28 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-
-type Video = {
-  id: string;
-  type: string;
-  title: string;
-  desc?: string;
-  embedSrc: string;
-  attributes: {
-    studio: string;
-    genre: string[];
-    tags: string[];
-    duration: number;
-    releaseDate: string;
-    difficulty: string;
-    popularity: number;
-    timeOfDay: string[];
-    mood: string[];
-  };
-  offer: {
-    name: string;
-    url: string;
-  };
-};
+import { Video } from '@/types/video';
 
 // DMMのサムネイル画像URLを生成する関数
 function getDmmThumbnailUrl(videoId: string): string {
@@ -38,15 +16,11 @@ type UserBehavior = {
 };
 
 type Props = {
-  id: string;
-  title: string;
-  embedSrc: string;
-  offerName: string;
   video: Video;
   onUserAction: (behavior: UserBehavior, video: Video) => void;
 };
 
-export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, onUserAction }: Props) {
+export default function DmmEmbedCard({ video, onUserAction }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
   const [viewStartTime, setViewStartTime] = useState<number | null>(null);
@@ -54,8 +28,16 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
 
   // 監視対象は「枠（iframe）」ではなく「セクション」側で見ると精度が上がる
   const sectionRef = useRef<HTMLElement | null>(null);
+  const thumbnailRef = useRef<HTMLDivElement>(null);
 
-  const thumbnailUrl = getDmmThumbnailUrl(id);
+  const thumbnailUrl = getDmmThumbnailUrl(video.id);
+
+  // CSS変数を使って背景画像を設定
+  useEffect(() => {
+    if (thumbnailRef.current && !thumbnailError) {
+      thumbnailRef.current.style.setProperty('--bg-url', `url(${thumbnailUrl})`);
+    }
+  }, [thumbnailUrl, thumbnailError]);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -70,11 +52,10 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
         } else if (viewStartTime) {
           // 視聴終了 - ユーザー行動を記録
           const viewDuration = Date.now() - viewStartTime;
-          const action = viewDuration > video.attributes.duration * 1000 * 0.8 ? 'complete' : 
-                       viewDuration > 5000 ? 'view' : 'skip';
+          const action = viewDuration > 5000 ? 'view' : 'skip';
           
           onUserAction({
-            videoId: id,
+            videoId: video.id,
             action,
             duration: viewDuration,
             timestamp: Date.now()
@@ -87,42 +68,43 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [id, video, onUserAction, viewStartTime]);
+  }, [video.id, video, onUserAction, viewStartTime]);
 
   // 見えたらsrcを入れる、外れたらアンロード（再入場時は最初から）
   useEffect(() => {
     const iframe = frameRef.current;
     if (!iframe) return;
     if (inView) {
-      if (!iframe.src || iframe.src === "about:blank") iframe.src = embedSrc;
+      if (!iframe.src || iframe.src === "about:blank") iframe.src = video.videoUrl;
     } else {
       // ロードを確実に止める
       if (iframe.src && iframe.src !== "about:blank") iframe.src = "about:blank";
     }
-  }, [inView, embedSrc]);
+  }, [inView, video.videoUrl]);
 
   // CTAクリック時の行動記録
   const handleCtaClick = () => {
     onUserAction({
-      videoId: id,
+      videoId: video.id,
       action: 'click',
       timestamp: Date.now()
     }, video);
   };
 
   return (
-    <section ref={sectionRef} className="card" aria-label={title}>
+    <section ref={sectionRef} className="card" aria-label={video.title}>
       <div className="video-thumbnail-container">
         {/* サムネイル表示（画面内に入るまではプレビューを表示） */}
         {!inView && (
           <div 
+            ref={thumbnailRef}
             className={`video-thumbnail ${thumbnailError ? 'error' : ''}`}
           >
             {!thumbnailError && (
               <img 
                 src={thumbnailUrl} 
-                alt={`${title}のサムネイル`}
-                className="video-thumbnail-img"
+                alt={`${video.title}のサムネイル`}
+                className="video-thumbnail-image"
                 onError={() => setThumbnailError(true)}
                 onLoad={() => setThumbnailError(false)}
               />
@@ -139,7 +121,7 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
         {/* 画面内に入ったらiframeを表示・読み込み */}
         <iframe
           ref={frameRef}
-          title={title}
+          title={video.title}
           className={`video-iframe ${!inView ? 'hidden' : ''}`}
           sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           allow="autoplay; encrypted-media; picture-in-picture"
@@ -150,11 +132,11 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
       </div>
 
       <div className="card-footer">
-        <div className="offer-name">{offerName}</div>
-        {video.desc && <div className="video-description">{video.desc}</div>}
+        <div className="offer-name">{video.offer.name}</div>
+        {video.description && <div className="video-description">{video.description}</div>}
         <div className="video-title">{video.title}</div>
         <a
-          href={`/go/${id}`}
+          href={`/go/${video.id}`}
           onClick={handleCtaClick}
           rel="sponsored"
           className="cta-link"

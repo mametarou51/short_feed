@@ -98,12 +98,50 @@ export default function VideoPlayer({ video, isVisible }: VideoPlayerProps) {
       />
       
       <div className="video-overlay">
-        <div className="video-offer">
-          提供: {video.offer.name}
+        <div className="video-header">
+          <div className="video-offer">
+            提供: {video.offer.name}
+          </div>
+          {video.isOfficial && (
+            <div className="official-badge">
+              公式サンプル
+            </div>
+          )}
+          {video.category && (
+            <div className="category-badge">
+              {video.category}
+            </div>
+          )}
         </div>
-        <div className="video-title">
-          {video.title}
+        
+        <div className="video-content">
+          <div className="video-title">
+            {video.title}
+          </div>
+          
+          {video.description && (
+            <div className="video-description">
+              {video.description}
+            </div>
+          )}
+          
+          {video.duration && (
+            <div className="video-duration">
+              再生時間: {video.duration}
+            </div>
+          )}
+          
+          {video.tags && video.tags.length > 0 && (
+            <div className="video-tags">
+              {video.tags.slice(0, 3).map((tag, index) => (
+                <span key={index} className="tag">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
+        
         <button 
           className="cta-button"
           onClick={handleCTAClick}

@@ -11,6 +11,11 @@ export const VideoSchema = z.object({
   posterUrl: z.string().url(),
   videoUrl: z.string().url(),
   offer: OfferSchema,
+  description: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  duration: z.string().optional(),
+  isOfficial: z.boolean().optional(),
 });
 
 export const VideosArraySchema = z.array(VideoSchema);
