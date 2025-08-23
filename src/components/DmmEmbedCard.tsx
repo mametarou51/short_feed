@@ -23,69 +23,13 @@ type Props = {
 
 export default function DmmEmbedCard({ video, onUserAction }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
-  const [inView, setInView] = useState(false);
-  const [viewStartTime, setViewStartTime] = useState<number | null>(null);
+  const [showVideo, setShowVideo] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
-
-  // 監視対象は「枠（iframe）」ではなく「セクション」側で見ると精度が上がる
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const thumbnailRef = useRef<HTMLDivElement>(null);
-
-  // サムネイル画像のURLを決定（posterUrlがある場合はそれを使用、ない場合はDMM APIから生成）
   const thumbnailUrl = video.posterUrl || getDmmThumbnailUrl(video.id);
 
-  // CSS変数を使って背景画像を設定
-  useEffect(() => {
-    if (thumbnailRef.current && !thumbnailError) {
-      thumbnailRef.current.style.setProperty('--bg-url', `url(${thumbnailUrl})`);
-    }
-  }, [thumbnailUrl, thumbnailError]);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => {
-        setInView(e.isIntersecting);
-        
-        if (e.isIntersecting) {
-          // 視聴開始
-          setViewStartTime(Date.now());
-        } else if (viewStartTime) {
-          // 視聴終了 - ユーザー行動を記録
-          const viewDuration = Date.now() - viewStartTime;
-          const action = viewDuration > 5000 ? 'view' : 'skip';
-          
-          onUserAction({
-            videoId: video.id,
-            action,
-            duration: viewDuration,
-            timestamp: Date.now()
-          }, video);
-          
-          setViewStartTime(null);
-        }
-      }),
-      { threshold: 0.9 } // ほぼ全体が見えた時だけON
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [video.id, video, onUserAction, viewStartTime]);
-
-  // 見えたらsrcを入れる、外れたらアンロード（再入場時は最初から）
-  useEffect(() => {
-    const iframe = frameRef.current;
-    if (!iframe) return;
-    if (inView) {
-      if (!iframe.src || iframe.src === "about:blank") iframe.src = video.embedSrc;
-    } else {
-      // ロードを確実に止める
-      if (iframe.src && iframe.src !== "about:blank") iframe.src = "about:blank";
-    }
-  }, [inView, video.embedSrc]);
-
-  // CTAクリック時の行動記録
-  const handleCtaClick = () => {
+  // サムネイルクリックで動画表示
+  const handleThumbnailClick = () => {
+    setShowVideo(true);
     onUserAction({
       videoId: video.id,
       action: 'click',
@@ -94,13 +38,14 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
   };
 
   return (
-    <section ref={sectionRef} className="card" aria-label={video.title}>
-      <div className="video-thumbnail-container">
-        {/* サムネイル表示（画面内に入るまではプレビューを表示） */}
-        {!inView && (
+    <section className="card" aria-label={video.title}>
+      <div className="video-thumbnail-container" style={{position: 'relative'}}>
+        {/* サムネイルを動画に重ねて表示 */}
+        {!showVideo && (
           <div 
-            ref={thumbnailRef}
             className={`video-thumbnail ${thumbnailError ? 'error' : ''}`}
+            style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2, cursor: 'pointer'}}
+            onClick={handleThumbnailClick}
           >
             {!thumbnailError && (
               <Image
@@ -123,18 +68,21 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
             )}
           </div>
         )}
-
-        {/* 画面内に入ったらiframeを表示・読み込み */}
-        <iframe
-          ref={frameRef}
-          title={video.title}
-          className={`video-iframe ${!inView ? 'hidden' : ''}`}
-          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          scrolling="no"
-          frameBorder={0}
-          allowFullScreen
-        />
+        {/* サムネイルクリック後にiframe表示 */}
+        {showVideo && (
+          <iframe
+            ref={frameRef}
+            src={video.embedSrc}
+            title={video.title}
+            className="video-iframe"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            scrolling="no"
+            frameBorder={0}
+            allowFullScreen
+            style={{width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, zIndex: 1}}
+          />
+        )}
       </div>
 
       <div className="card-footer">
@@ -143,7 +91,7 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
         <div className="video-title">{video.title}</div>
         <a
           href={`/go/${video.id}`}
-          onClick={handleCtaClick}
+          onClick={() => onUserAction({ videoId: video.id, action: 'click', timestamp: Date.now() }, video)}
           rel="sponsored"
           className="cta-link"
         >
