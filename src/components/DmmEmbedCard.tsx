@@ -11,53 +11,9 @@ type Props = {
 export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [totalLikes, setTotalLikes] = useState(0);
 
   // 監視対象は「枠（iframe）」ではなく「セクション」側で見ると精度が上がる
   const sectionRef = useRef<HTMLElement | null>(null);
-
-  // コンポーネント初期化時にローカルストレージから状態を復元
-  useEffect(() => {
-    const liked = localStorage.getItem(`liked_${id}`) === 'true';
-    setIsLiked(liked);
-    
-    // 総いいね数を取得（他の人のいいねも含む）
-    const globalLikes = parseInt(localStorage.getItem(`total_likes_${id}`) || '0');
-    setTotalLikes(globalLikes);
-  }, [id]);
-
-  // いいねボタンのハンドラ
-  const handleLike = () => {
-    const newLikedState = !isLiked;
-    setIsLiked(newLikedState);
-    
-    // 総いいね数を更新（自分のいいね分）
-    const newTotalLikes = newLikedState ? totalLikes + 1 : totalLikes - 1;
-    setTotalLikes(newTotalLikes);
-    
-    // ローカルストレージに保存
-    localStorage.setItem(`liked_${id}`, newLikedState.toString());
-    localStorage.setItem(`total_likes_${id}`, newTotalLikes.toString());
-  };
-
-  // 他の人のいいねをシミュレート（定期的に増加）
-  useEffect(() => {
-    if (!inView) return; // 画面に表示されている時のみ実行
-    
-    const interval = setInterval(() => {
-      // 10-30秒に1回、他の人がいいねする確率30%
-      if (Math.random() < 0.3) {
-        setTotalLikes(prev => {
-          const newCount = prev + 1;
-          localStorage.setItem(`total_likes_${id}`, newCount.toString());
-          return newCount;
-        });
-      }
-    }, Math.random() * 20000 + 10000); // 10-30秒間隔
-
-    return () => clearInterval(interval);
-  }, [inView, id]);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -104,148 +60,17 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
         allowFullScreen
       />
 
-      {/* 右側のアクションボタン */}
-      <div style={{
-        position: "absolute",
-        right: 16,
-        bottom: 100,
-        display: "flex",
-        flexDirection: "column",
-        gap: 20,
-        zIndex: 10
-      }}>
-        <div 
-          onClick={handleLike}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            background: isLiked ? "rgba(255,23,68,0.8)" : "rgba(255,255,255,0.2)",
-            backdropFilter: "blur(10px)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            transform: isLiked ? "scale(1.1)" : "scale(1)"
-          }}
-        >
-          <span style={{ 
-            fontSize: 24,
-            transform: isLiked ? "scale(1.2)" : "scale(1)",
-            transition: "transform 0.2s ease"
-          }}>
-            {isLiked ? "💖" : "🤍"}
-          </span>
-          <span style={{ 
-            fontSize: 10, 
-            color: "#fff", 
-            fontWeight: "bold",
-            marginTop: 2
-          }}>
-            {totalLikes > 9999 ? `${Math.floor(totalLikes/1000)}k` : totalLikes}
-          </span>
-        </div>
-        <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.2)",
-          backdropFilter: "blur(10px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer"
-        }}>
-          <span style={{ fontSize: 24 }}>💬</span>
-        </div>
-        <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.2)",
-          backdropFilter: "blur(10px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer"
-        }}>
-          <span style={{ fontSize: 24 }}>📤</span>
-        </div>
-        <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.2)",
-          backdropFilter: "blur(10px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer"
-        }}>
-          <span style={{ fontSize: 24 }}>🔖</span>
-        </div>
-      </div>
-
-      {/* 左下のタイトルエリア */}
-      <div style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 80,
-        padding: "20px 16px",
-        background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.8))",
-        color: "#fff",
-        zIndex: 10
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <div style={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            background: "#ff1744",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 12,
-            fontWeight: "bold"
-          }}>
-            {offerName.charAt(0)}
-          </div>
-          <span style={{ fontSize: 14, fontWeight: "bold" }}>@{offerName.toLowerCase()}</span>
-          <button style={{
-            padding: "4px 12px",
-            background: "transparent",
-            border: "1px solid #fff",
-            borderRadius: 4,
-            color: "#fff",
-            fontSize: 12,
-            cursor: "pointer"
-          }}>
-            フォロー
-          </button>
-        </div>
-        <div style={{ fontSize: 15, marginBottom: 12, lineHeight: "1.4" }}>
-          {title} #大人の動画 #おすすめ #viral
-        </div>
+      <div className="card-footer">
+        <div style={{ fontSize: 12, opacity: .9 }}>{offerName}</div>
+        <div style={{ fontSize: 18, fontWeight: 700, margin: "8px 0" }}>{title}</div>
         <a
           href={`/go/${id}`}
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 16px",
-            background: "#ff1744",
-            color: "#fff",
-            borderRadius: 25,
-            fontWeight: 600,
-            fontSize: 14,
-            textDecoration: "none"
+            display: "inline-flex", padding: "10px 16px",
+            background: "#fff", color: "#000", borderRadius: 8, fontWeight: 600
           }}
         >
-          <span>▶️</span>
-          本編を見る
+          本編へ
         </a>
       </div>
     </section>
