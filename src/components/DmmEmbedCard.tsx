@@ -2,6 +2,67 @@
 import { useRef, useState, useEffect } from "react";
 import { Video } from '@/types/video';
 
+// DUGAビデオプレイヤーコンポーネント
+function DugaVideoPlayer({ video }: { video: Video }) {
+  const playerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (playerRef.current) {
+      const container = playerRef.current;
+      
+      // プレイヤー用のHTML構造を作成
+      container.innerHTML = `
+        <div id="dugaflvplayer-${video.id}" 
+             data-w="540" 
+             data-h="300" 
+             data-o="dugaflvplayer-${video.id}" 
+             data-l="ppv" 
+             data-p="${video.id}" 
+             data-a="48475" 
+             data-b="01">
+          <a href="${video.offer.url}" target="_blank">${video.title}</a>
+        </div>
+      `;
+      
+      // プレイヤー用スクリプトを読み込み
+      const playerScript = document.createElement('script');
+      playerScript.type = 'text/javascript';
+      playerScript.src = 'https://ad.duga.jp/flash/dugaflvplayer.js';
+      playerScript.defer = true;
+      document.head.appendChild(playerScript);
+      
+      return () => {
+        // クリーンアップ
+        container.innerHTML = '';
+        // スクリプトも削除
+        const existingScript = document.head.querySelector(`script[src="https://ad.duga.jp/flash/dugaflvplayer.js"]`);
+        if (existingScript) {
+          document.head.removeChild(existingScript);
+        }
+      };
+    }
+  }, [video.id, video.offer.url, video.title]);
+
+  return (
+    <div 
+      ref={playerRef}
+      className="duga-video-container"
+      style={{
+        width: '100%', 
+        height: '100%', 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        zIndex: 1,
+        backgroundColor: '#1a1a1a',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    />
+  );
+}
+
 // サムネイル画像URLを生成する関数
 function getThumbnailUrl(video: Video): string {
   if (video.type === 'duga_iframe') {
@@ -118,21 +179,7 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
         {/* サムネイルクリック後に動画表示 */}
         {showVideo && (
           video.type === 'duga_iframe' ? (
-            <div 
-              className="duga-video-container"
-              style={{
-                width: '100%', 
-                height: '100%', 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                zIndex: 1,
-                backgroundColor: '#1a1a1a'
-              }}
-              dangerouslySetInnerHTML={{
-                __html: `<script type="text/javascript" src="${video.embedSrc}"></script>`
-              }}
-            />
+            <DugaVideoPlayer video={video} />
           ) : (
             <iframe
               ref={frameRef}
