@@ -11,9 +11,25 @@ type Props = {
 export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [inView, setInView] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 9000) + 1000);
 
   // 監視対象は「枠（iframe）」ではなく「セクション」側で見ると精度が上がる
   const sectionRef = useRef<HTMLElement | null>(null);
+
+  // コンポーネント初期化時にローカルストレージから「いいね」状態を復元
+  useEffect(() => {
+    const liked = localStorage.getItem(`liked_${id}`) === 'true';
+    setIsLiked(liked);
+  }, [id]);
+
+  // いいねボタンのハンドラ
+  const handleLike = () => {
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
+    setLikeCount(prev => newLikedState ? prev + 1 : prev - 1);
+    localStorage.setItem(`liked_${id}`, newLikedState.toString());
+  };
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -70,18 +86,38 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
         gap: 20,
         zIndex: 10
       }}>
-        <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.2)",
-          backdropFilter: "blur(10px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer"
-        }}>
-          <span style={{ fontSize: 24 }}>❤️</span>
+        <div 
+          onClick={handleLike}
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: "50%",
+            background: isLiked ? "rgba(255,23,68,0.8)" : "rgba(255,255,255,0.2)",
+            backdropFilter: "blur(10px)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+            transform: isLiked ? "scale(1.1)" : "scale(1)"
+          }}
+        >
+          <span style={{ 
+            fontSize: 24,
+            transform: isLiked ? "scale(1.2)" : "scale(1)",
+            transition: "transform 0.2s ease"
+          }}>
+            {isLiked ? "💖" : "🤍"}
+          </span>
+          <span style={{ 
+            fontSize: 10, 
+            color: "#fff", 
+            fontWeight: "bold",
+            marginTop: 2
+          }}>
+            {likeCount > 9999 ? `${Math.floor(likeCount/1000)}k` : likeCount}
+          </span>
         </div>
         <div style={{
           width: 48,
