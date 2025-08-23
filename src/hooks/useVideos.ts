@@ -11,17 +11,23 @@ interface UseVideosReturn {
 
 // Legacy data adapter
 function adaptLegacyVideo(legacyVideo: any): Video {
+  const attrs = legacyVideo?.attributes ?? {};
+  const tags: string[] = Array.isArray(attrs.tags) ? attrs.tags : [];
+  const genres: string[] = Array.isArray(attrs.genre) ? attrs.genre : [];
+  const primaryCategory = genres.length > 0 ? genres[0] : (tags[0] || 'その他');
+  const descFromTags = tags.length > 0 ? `${tags.slice(0, 2).join('、')}の動画です` : undefined;
+
   return {
     id: legacyVideo.id,
     title: legacyVideo.title,
     posterUrl: `https://pics.dmm.co.jp/digital/video/${legacyVideo.id}/${legacyVideo.id}pl.jpg`,
     videoUrl: legacyVideo.embedSrc || '',
     offer: legacyVideo.offer,
-    description: legacyVideo.desc || legacyVideo.attributes?.tags?.slice(0, 2).join('、') + 'の動画です',
-    category: legacyVideo.attributes?.genre?.[0] || 'その他',
-    tags: legacyVideo.attributes?.tags || [],
-    duration: legacyVideo.attributes?.duration ? `${Math.floor(legacyVideo.attributes.duration / 60)}分` : undefined,
-    isOfficial: legacyVideo.desc?.includes('公式') || legacyVideo.desc?.includes('サンプル'),
+    description: legacyVideo.desc || descFromTags,
+    category: primaryCategory,
+    tags,
+    duration: typeof attrs.duration === 'number' ? `${Math.floor(attrs.duration / 60)}分` : undefined,
+    isOfficial: Boolean(legacyVideo.desc && (legacyVideo.desc.includes('公式') || legacyVideo.desc.includes('サンプル'))),
   };
 }
 
@@ -42,7 +48,7 @@ export function useVideos(): UseVideosReturn {
         }
         
         const data = await response.json();
-        const adaptedVideos = data.map(adaptLegacyVideo);
+        const adaptedVideos = (Array.isArray(data) ? data : []).map(adaptLegacyVideo);
         
         setVideos(adaptedVideos);
       } catch (err) {

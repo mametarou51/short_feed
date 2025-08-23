@@ -15,23 +15,31 @@ type UserProfile = {
   totalInteractions: number;
 };
 
+function sanitizeProfile(data: any): UserProfile {
+  return {
+    preferredGenres: (data && typeof data === 'object' && data.preferredGenres && typeof data.preferredGenres === 'object') ? data.preferredGenres : {},
+    preferredCategories: (data && typeof data === 'object' && data.preferredCategories && typeof data.preferredCategories === 'object') ? data.preferredCategories : {},
+    totalInteractions: (data && typeof data.totalInteractions === 'number') ? data.totalInteractions : 0,
+  };
+}
+
 export default function useRecommendationAlgorithm() {
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('userProfile');
       if (saved) {
         try {
-          return JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          const sanitized = sanitizeProfile(parsed);
+          // 破損データを修正して即保存
+          localStorage.setItem('userProfile', JSON.stringify(sanitized));
+          return sanitized;
         } catch {
           // エラーの場合はデフォルト値を使用
         }
       }
     }
-    return {
-      preferredGenres: {},
-      preferredCategories: {},
-      totalInteractions: 0,
-    };
+    return { preferredGenres: {}, preferredCategories: {}, totalInteractions: 0 };
   });
 
   const trackUserBehavior = useCallback((behavior: UserBehavior, video: Video) => {
@@ -54,19 +62,24 @@ export default function useRecommendationAlgorithm() {
         break;
     }
 
-    const updatedProfile = { ...userProfile };
+    // 既存プロファイルを安全に複製（ネストも既定値で初期化）
+    const updatedProfile: UserProfile = {
+      preferredGenres: { ...(userProfile.preferredGenres || {}) },
+      preferredCategories: { ...(userProfile.preferredCategories || {}) },
+      totalInteractions: userProfile.totalInteractions || 0,
+    };
     
     // カテゴリ学習
     if (video.category) {
       updatedProfile.preferredCategories[video.category] = 
-        (updatedProfile.preferredCategories[video.category] || 0) + weight;
+        (updatedProfile.preferredCategories[video.category] ?? 0) + weight;
     }
     
     // タグ学習
     if (video.tags) {
       video.tags.forEach(tag => {
         updatedProfile.preferredGenres[tag] = 
-          (updatedProfile.preferredGenres[tag] || 0) + weight;
+          (updatedProfile.preferredGenres[tag] ?? 0) + weight;
       });
     }
     
@@ -74,23 +87,16 @@ export default function useRecommendationAlgorithm() {
     
     setUserProfile(updatedProfile);
     
-    // LocalStorageに保存
+    // LocalStorageに保存（履歴も同時に更新）
     if (typeof window !== 'undefined') {
       localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
-      
-      // 行動履歴も保存
       const history = JSON.parse(localStorage.getItem('userBehavior') || '[]');
       history.push({
         ...behavior,
         videoTitle: video.title,
         category: video.category
       });
-      
-      // 最新100件のみ保持
-      if (history.length > 100) {
-        history.splice(0, history.length - 100);
-      }
-      
+      if (history.length > 100) history.splice(0, history.length - 100);
       localStorage.setItem('userBehavior', JSON.stringify(history));
     }
   }, [userProfile]);
@@ -99,14 +105,14 @@ export default function useRecommendationAlgorithm() {
     let score = Math.random() * 0.5; // ベーススコア
     
     // カテゴリスコア
-    if (video.category && userProfile.preferredCategories[video.category]) {
-      score += userProfile.preferredCategories[video.category] / 10;
+    if (video.category && userProfile.preferredCategories?.[video.category]) {
+      score += (userProfile.preferredCategories?.[video.category] ?? 0) / 10;
     }
     
     // タグスコア
     if (video.tags && video.tags.length > 0) {
       const tagScore = video.tags.reduce((sum, tag) => {
-        return sum + (userProfile.preferredGenres[tag] || 0);
+        return sum + (userProfile.preferredGenres?.[tag] ?? 0);
       }, 0) / video.tags.length;
       score += tagScore / 20;
     }
@@ -123,7 +129,7 @@ export default function useRecommendationAlgorithm() {
     if (!videos || videos.length === 0) return [];
     
     // 初回訪問者や学習データが少ない場合はランダム
-    if (userProfile.totalInteractions < 5) {
+    if ((userProfile.totalInteractions ?? 0) < 5) {
       return [...videos].sort(() => Math.random() - 0.5);
     }
     
