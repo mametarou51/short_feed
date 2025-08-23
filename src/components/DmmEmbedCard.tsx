@@ -42,9 +42,9 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName }: Props) 
     <section ref={sectionRef} className="card" aria-label={title}>
       {/* 16:9を画面中央に最大サイズで配置（上下黒帯） */}
       <div style={{
-        position: "absolute", inset: 0, display: "grid", placeItems: "center"
+        position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center"
       }}>
-        <div style={{ width: "100%", maxWidth: 720, aspectRatio: "16/9" }}>
+        <div style={{ width: "100%", height: "100%", maxHeight: "100vh", aspectRatio: "16/9" }}>
           <iframe
             ref={frameRef}
             title={title}
