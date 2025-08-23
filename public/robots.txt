@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://short-feed.pages.dev/sitemap.xml

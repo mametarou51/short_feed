@@ -29,8 +29,8 @@ function AgeGate({ onAllow }: { onAllow: () => void }) {
       display: "grid", placeItems: "center", zIndex: 50, textAlign: "center", padding: 24
     }}>
       <div style={{ maxWidth: 480 }}>
-        <h2 style={{ fontSize: 22, marginBottom: 12 }}>18歳以上ですか？</h2>
-        <p style={{ opacity: .9, marginBottom: 16 }}>成人向けの内容を含みます。18歳以上の場合のみ続行してください。</p>
+        <h2 style={{ fontSize: 22, marginBottom: 12 }}>年齢確認</h2>
+        <p style={{ opacity: .9, marginBottom: 16 }}>成人向けの内容を含むため、18歳以上の方のみご利用いただけます。</p>
         <button
           onClick={() => { localStorage.setItem("agreed18", "1"); onAllow(); }}
           style={{ padding: "10px 16px", background: "#fff", color: "#000", borderRadius: 8, fontWeight: 600 }}

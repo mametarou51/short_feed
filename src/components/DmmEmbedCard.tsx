@@ -5,6 +5,7 @@ type Video = {
   id: string;
   type: string;
   title: string;
+  desc?: string;
   embedSrc: string;
   attributes: {
     studio: string;
@@ -124,10 +125,12 @@ export default function DmmEmbedCard({ id, title, embedSrc, offerName, video, on
 
       <div className="card-footer">
         <div style={{ fontSize: 12, opacity: .9 }}>{offerName}</div>
+        {video.desc && <div style={{ fontSize: 14, opacity: .9, marginBottom: 8 }}>{video.desc}</div>}
         <div style={{ fontSize: 18, fontWeight: 700, margin: "8px 0" }}>{title}</div>
         <a
           href={`/go/${id}`}
           onClick={handleCtaClick}
+          rel="sponsored"
           style={{
             display: "inline-flex", padding: "10px 16px",
             background: "#fff", color: "#000", borderRadius: 8, fontWeight: 600
