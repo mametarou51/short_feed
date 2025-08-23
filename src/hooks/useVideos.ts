@@ -19,15 +19,18 @@ function adaptLegacyVideo(legacyVideo: any): Video {
 
   return {
     id: legacyVideo.id,
+    type: legacyVideo.type,
     title: legacyVideo.title,
-    posterUrl: `https://pics.dmm.co.jp/digital/video/${legacyVideo.id}/${legacyVideo.id}pl.jpg`,
-    videoUrl: legacyVideo.embedSrc || '',
+    desc: legacyVideo.desc || descFromTags,
+    embedSrc: legacyVideo.embedSrc || '',
+    posterUrl: legacyVideo.posterUrl || `https://pics.dmm.co.jp/digital/video/${legacyVideo.id}/${legacyVideo.id}pl.jpg`,
     offer: legacyVideo.offer,
     description: legacyVideo.desc || descFromTags,
     category: primaryCategory,
     tags,
     duration: typeof attrs.duration === 'number' ? `${Math.floor(attrs.duration / 60)}分` : undefined,
     isOfficial: Boolean(legacyVideo.desc && (legacyVideo.desc.includes('公式') || legacyVideo.desc.includes('サンプル'))),
+    attributes: legacyVideo.attributes,
   };
 }
 

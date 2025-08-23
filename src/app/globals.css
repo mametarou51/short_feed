@@ -101,22 +101,29 @@ body {
 
 /* iOSアドレスバー収縮対策 */
 main, .feed {
-  height: calc(100svh - var(--header-height));  /* ヘッダー分を除いた高さ */
+  height: calc(100vh - var(--header-height));  
+  min-height: calc(100vh - var(--header-height));
 }
 
 /* ショート風スナップ */
 .feed {
   height: calc(100vh - var(--header-height, 60px)); /* ヘッダー分を除いた高さ */
-  overflow-y: scroll;
+  overflow-y: auto;
+  overflow-x: hidden;
   scroll-snap-type: y mandatory;
   overscroll-behavior-y: contain; /* バウンドを抑える */
+  -webkit-overflow-scrolling: touch; /* iOS スムーズスクロール */
 }
 
 .card {
   position: relative;
   height: calc(100vh - var(--header-height, 60px)); /* ヘッダー分を除いた高さ */
+  min-height: calc(100vh - var(--header-height, 60px));
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   background: #000;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 画面下オーバーレイ */
@@ -579,6 +586,8 @@ main, .feed {
   position: relative;
   width: 100%;
   height: 100%;
+  flex: 1;
+  overflow: hidden;
 }
 
 .video-thumbnail {
@@ -589,11 +598,13 @@ main, .feed {
   height: 100%;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 1;
+  background-color: #1a1a1a;
 }
 
 .video-thumbnail.error {
@@ -601,7 +612,9 @@ main, .feed {
 }
 
 .video-thumbnail-image {
-  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .play-button-overlay {

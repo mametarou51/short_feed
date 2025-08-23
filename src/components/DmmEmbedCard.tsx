@@ -31,7 +31,8 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const thumbnailRef = useRef<HTMLDivElement>(null);
 
-  const thumbnailUrl = getDmmThumbnailUrl(video.id);
+  // サムネイル画像のURLを決定（posterUrlがある場合はそれを使用、ない場合はDMM APIから生成）
+  const thumbnailUrl = video.posterUrl || getDmmThumbnailUrl(video.id);
 
   // CSS変数を使って背景画像を設定
   useEffect(() => {
@@ -76,12 +77,12 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
     const iframe = frameRef.current;
     if (!iframe) return;
     if (inView) {
-      if (!iframe.src || iframe.src === "about:blank") iframe.src = video.videoUrl;
+      if (!iframe.src || iframe.src === "about:blank") iframe.src = video.embedSrc;
     } else {
       // ロードを確実に止める
       if (iframe.src && iframe.src !== "about:blank") iframe.src = "about:blank";
     }
-  }, [inView, video.videoUrl]);
+  }, [inView, video.embedSrc]);
 
   // CTAクリック時の行動記録
   const handleCtaClick = () => {
@@ -128,18 +129,17 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
           ref={frameRef}
           title={video.title}
           className={`video-iframe ${!inView ? 'hidden' : ''}`}
-          sandbox="allow-forms allow-scripts allow-presentation allow-same-origin"
+          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           allow="autoplay; encrypted-media; picture-in-picture"
           scrolling="no"
           frameBorder={0}
           allowFullScreen
-          height="100%"
-          src="about:blank" // 初期状態は空
-        ></iframe>
+        />
       </div>
-      <div className="video-info">
+
+      <div className="card-footer">
         <div className="offer-name">{video.offer.name}</div>
-        {video.description && <div className="video-description">{video.description}</div>}
+        {video.desc && <div className="video-description">{video.desc}</div>}
         <div className="video-title">{video.title}</div>
         <a
           href={`/go/${video.id}`}

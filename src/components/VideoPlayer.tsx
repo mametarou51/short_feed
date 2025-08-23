@@ -19,7 +19,7 @@ export default function VideoPlayer({ video, isVisible }: VideoPlayerProps) {
 
     async function setupVideo() {
       if (!videoElement) return;
-      
+      if (!video.videoUrl) return;
       const isHLS = video.videoUrl.includes('.m3u8');
       
       if (isHLS && !videoElement.canPlayType('application/vnd.apple.mpegurl')) {
