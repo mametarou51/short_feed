@@ -1,59 +1,62 @@
-'use client';
+"use client";
+import { useEffect, useState } from "react";
+import DmmEmbedCard from "@/components/DmmEmbedCard";
 
-import { useState } from 'react';
-import { useVideos } from '@/hooks/useVideos';
-import VideoContainer from '@/components/VideoContainer';
-import AgeGate from '@/components/AgeGate';
-import Footer from '@/components/Footer';
+type Dmm = {
+  id: string;
+  type: "dmm_iframe";
+  title: string;
+  embedSrc: string;
+  offer: { name: string; url: string };
+};
 
 export default function Home() {
-  const [isAgeVerified, setIsAgeVerified] = useState(false);
-  const { videos, loading, error } = useVideos();
+  const [list, setList] = useState<Dmm[]>([]);
+  const [ageOk, setAgeOk] = useState<boolean>(false);
 
-  if (loading) {
-    return (
-      <div className="loading">
-        <div>読み込み中...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="error">
-        <div>
-          <h2>エラーが発生しました</h2>
-          <p>{error}</p>
-          <p>ページを再読み込みしてください。</p>
-        </div>
-      </div>
-    );
-  }
-
-  const handleVisibilityChange = (videoId: string, isVisible: boolean) => {
-    if (isVisible) {
-      console.log(`Video ${videoId} is now visible`);
-    } else {
-      console.log(`Video ${videoId} is now hidden`);
-    }
-  };
+  useEffect(() => {
+    setAgeOk(!!localStorage.getItem("agreed18"));
+    fetch("/videos.json").then((r) => r.json()).then(setList);
+  }, []);
 
   return (
-    <>
-      {!isAgeVerified && (
-        <AgeGate onAgeVerified={() => setIsAgeVerified(true)} />
+    <main
+      className="h-[100svh] overflow-y-scroll bg-black"
+      style={{ scrollSnapType: "y mandatory" }}
+    >
+      {!ageOk && (
+        <div
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,.85)",
+            color: "#fff", display: "grid", placeItems: "center", zIndex: 50, textAlign: "center", padding: 24
+          }}
+        >
+          <div style={{ maxWidth: 480 }}>
+            <h2 style={{ fontSize: 22, marginBottom: 12 }}>18歳以上ですか？</h2>
+            <p style={{ opacity: .9, marginBottom: 16 }}>
+              成人向けの内容を含みます。18歳以上の場合のみ続行してください。
+            </p>
+            <button
+              onClick={() => { localStorage.setItem("agreed18", "1"); setAgeOk(true); }}
+              style={{ padding: "10px 16px", background: "#fff", color: "#000", borderRadius: 8, fontWeight: 600 }}
+            >
+              はい、続行する
+            </button>
+          </div>
+        </div>
       )}
-      
-      <main className="snap-container">
-        {isAgeVerified && videos.map((video) => (
-          <VideoContainer
-            key={video.id}
-            video={video}
-            onVisibilityChange={handleVisibilityChange}
+
+      {ageOk && list.map((v) =>
+        v.type === "dmm_iframe" ? (
+          <DmmEmbedCard
+            key={v.id}
+            id={v.id}
+            title={v.title}
+            embedSrc={v.embedSrc}
+            offerName={v.offer.name}
           />
-        ))}
-        {isAgeVerified && <Footer />}
-      </main>
-    </>
+        ) : null
+      )}
+    </main>
   );
 }

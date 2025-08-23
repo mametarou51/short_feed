@@ -1,32 +1,32 @@
 [
   {
-    "id": "v1",
-    "title": "サンプルティーザー1",
-    "posterUrl": "https://picsum.photos/400/600?random=1",
-    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    "offer": {
-      "name": "FANZA",
-      "url": "https://example.com/fanza?affid=XXXX"
-    }
-  },
-  {
-    "id": "v2", 
-    "title": "サンプルティーザー2",
-    "posterUrl": "https://picsum.photos/400/600?random=2",
-    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    "id": "d1",
+    "type": "dmm_iframe",
+    "title": "サンプル動画1",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=ofje00505/size=1280_720/",
     "offer": {
       "name": "DMM",
-      "url": "https://example.com/dmm?affid=YYYY"
+      "url": "https://example.com/your_aff?vid=d1"
     }
   },
   {
-    "id": "v3",
-    "title": "サンプルティーザー3",
-    "posterUrl": "https://picsum.photos/400/600?random=3",
-    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "id": "d2",
+    "type": "dmm_iframe", 
+    "title": "サンプル動画2",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=pkpr00012/size=1280_720/",
     "offer": {
-      "name": "AdultSite",
-      "url": "https://example.com/adultsite?affid=ZZZZ"
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d2"
+    }
+  },
+  {
+    "id": "d3",
+    "type": "dmm_iframe",
+    "title": "サンプル動画3",
+    "embedSrc": "https://www.dmm.co.jp/litevideo/-/part/=/cid=stars00123/size=1280_720/",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/your_aff?vid=d3"
     }
   }
 ]
