@@ -1,0 +1,25 @@
+name = "short-video-redirect"
+main = "workers/go.js"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV namespace binding (will be created later)
+[[kv_namespaces]]
+binding = "VIDEOS"
+id = "placeholder_will_be_replaced"
+
+# Environment variables
+[vars]
+PLAUSIBLE_DOMAIN = "yourdomain.com"
+
+# Environment-specific secrets (set via wrangler secret put)
+# PLAUSIBLE_ENDPOINT = "https://plausible.yourdomain.com/api/event"
+
+# Production environment
+[env.production]
+[[env.production.kv_namespaces]]
+binding = "VIDEOS"
+id = "production_kv_namespace_id"
+
+[env.production.vars]
+PLAUSIBLE_DOMAIN = "yourdomain.com"

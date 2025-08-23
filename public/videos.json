@@ -1,0 +1,32 @@
+[
+  {
+    "id": "v1",
+    "title": "サンプルティーザー1",
+    "posterUrl": "https://picsum.photos/400/600?random=1",
+    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "offer": {
+      "name": "FANZA",
+      "url": "https://example.com/fanza?affid=XXXX"
+    }
+  },
+  {
+    "id": "v2", 
+    "title": "サンプルティーザー2",
+    "posterUrl": "https://picsum.photos/400/600?random=2",
+    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    "offer": {
+      "name": "DMM",
+      "url": "https://example.com/dmm?affid=YYYY"
+    }
+  },
+  {
+    "id": "v3",
+    "title": "サンプルティーザー3",
+    "posterUrl": "https://picsum.photos/400/600?random=3",
+    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "offer": {
+      "name": "AdultSite",
+      "url": "https://example.com/adultsite?affid=ZZZZ"
+    }
+  }
+]
