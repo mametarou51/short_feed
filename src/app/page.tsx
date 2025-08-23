@@ -1,8 +1,23 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import DmmEmbedCard from "@/components/DmmEmbedCard";
 import { useVideos } from "@/hooks/useVideos";
 import useRecommendationAlgorithm from "@/hooks/useRecommendationAlgorithm";
+
+// 期間を ISO 8601 に変換（例: 180 -> PT3M）
+function toIsoDuration(seconds?: number): string | undefined {
+  if (!seconds || seconds <= 0) return undefined;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  if (m && s) return `PT${m}M${s}S`;
+  if (m) return `PT${m}M`;
+  return `PT${s}S`;
+}
+
+// サムネイル推測（DMMは既知パターン、その他はフォールバック）
+function guessThumbnailUrl(videoId: string): string {
+  return `https://pics.dmm.co.jp/digital/video/${videoId}/${videoId}pl.jpg`;
+}
 
 type UserBehavior = {
   videoId: string;
@@ -48,6 +63,33 @@ export default function Home() {
 
   const sortedVideos = sortVideosByRecommendation(videos);
 
+  // 構造化データ（先頭20件を ItemList として出力）
+  const jsonLd = useMemo(() => {
+    if (!sortedVideos || sortedVideos.length === 0) return null;
+    const site = 'https://short-feed.pages.dev';
+    const elements = sortedVideos.slice(0, 20).map((video, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      item: {
+        '@type': 'VideoObject',
+        name: video.title,
+        description: video.desc || video.description || undefined,
+        thumbnailUrl: guessThumbnailUrl(video.id),
+        uploadDate: video.attributes?.releaseDate || undefined,
+        duration: toIsoDuration(video.attributes?.duration as unknown as number | undefined),
+        embedUrl: video.embedSrc,
+        contentUrl: `${site}/go/${video.id}`,
+        isFamilyFriendly: false,
+        publisher: { '@type': 'Organization', name: 'Short Feed', url: site },
+      }
+    }));
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      itemListElement: elements,
+    };
+  }, [sortedVideos]);
+
   if (loading) {
     return (
       <main className="feed no-scrollbar">
@@ -66,6 +108,14 @@ export default function Home() {
 
   return (
     <main className="feed no-scrollbar">
+      {/* 構造化データ */}
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
       {!ok && <AgeGate onAllow={() => setOk(true)} />}
       {ok && sortedVideos.map(video =>
         <DmmEmbedCard

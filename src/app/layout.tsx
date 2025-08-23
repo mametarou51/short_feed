@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: { 
     title: 'Short Feed',
     description: '短尺ティーザーまとめ',
-    url: 'https://short-feed.pages.dev',
+    url: 'https://short-feed.pages.dev/',
     siteName: 'Short Feed',
     locale: 'ja_JP',
     type: 'website',
@@ -62,7 +62,7 @@ export default function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Short Feed',
-    url: 'https://short-feed.pages.dev',
+    url: 'https://short-feed.pages.dev/',
     description: '短尺ティーザーを集めたリンクメディア',
     inLanguage: 'ja',
     isFamilyFriendly: false,
