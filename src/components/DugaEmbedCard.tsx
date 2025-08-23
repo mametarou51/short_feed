@@ -37,6 +37,17 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
         if (typeof (window as any).initAffImage === 'function') {
           (window as any).initAffImage();
         }
+        
+        // サムネイル内のリンクのクリックを防ぐ
+        setTimeout(() => {
+          const thumbnailLinks = container.querySelectorAll('a');
+          thumbnailLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            });
+          });
+        }, 100);
       };
       document.body.appendChild(script);
       
@@ -98,7 +109,9 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
     }
   }, [showVideo, video.id, video.offer.url, video.title]);
 
-  const handleThumbnailClick = () => {
+  const handleThumbnailClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setShowVideo(true);
     onUserAction({
       videoId: video.id,

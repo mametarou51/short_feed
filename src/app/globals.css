@@ -949,12 +949,14 @@ textarea.form-control {
   width: 100%;
   height: 100%;
   position: relative;
+  pointer-events: none; /* リンクのクリックを無効化 */
 }
 
 .duga-thumbnail a img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none; /* 画像のクリックも無効化 */
 }
 
 /* DUGA video player styles */
