@@ -687,44 +687,15 @@ main, .feed {
 }
 
 /* 動画サムネイル表示スタイル */
-.video-thumbnail-container {
+.video-container {
   position: relative;
   width: 100vw; /* 画面幅いっぱいに設定 */
   height: 100%;
   flex: 1;
   overflow: hidden;
-  min-height: 70vh; /* サムネイルエリアの最小高さを70%に設定 */
+  min-height: 70vh; /* 動画エリアの最小高さを70%に設定 */
   margin-left: calc(-50vw + 50%); /* 中央寄せのための調整 */
   margin-right: calc(-50vw + 50%);
-}
-
-.video-thumbnail {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw; /* 画面幅いっぱいに設定 */
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 1;
-  background-color: #1a1a1a;
-  margin-left: calc(-50vw + 50%); /* 中央寄せのための調整 */
-  margin-right: calc(-50vw + 50%);
-}
-
-.video-thumbnail.error {
-  background-color: #1a1a1a;
-}
-
-.video-thumbnail-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .play-button-overlay {
@@ -752,20 +723,6 @@ main, .feed {
   margin-left: 4px;
 }
 
-.thumbnail-fallback {
-  text-align: center;
-  color: white;
-  padding: 20px;
-}
-
-.thumbnail-fallback-icon {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.thumbnail-fallback-text {
-  font-size: 14px;
-}
 
 .video-iframe {
   position: absolute;
@@ -1034,43 +991,6 @@ textarea.form-control {
   }
 }
 
-/* Dynamic background for thumbnails */
-.video-thumbnail[data-bg-url] {
-  background-image: var(--bg-url);
-  background-size: cover;
-  background-position: center;
-}
-
-/* JavaScript will set the CSS custom property --bg-url */
-
-/* DUGA thumbnail styles */
-.duga-thumbnail {
-  background-color: #1a1a1a;
-}
-
-.duga-thumbnail img {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  object-fit: cover;
-}
-
-.duga-thumbnail a {
-  display: block;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  pointer-events: none; /* リンクのクリックを無効化 */
-  overflow: hidden; /* はみ出た部分を隠す */
-}
-
-.duga-thumbnail a img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  pointer-events: none; /* 画像のクリックも無効化 */
-}
 
 /* DUGA video player styles */
 .duga-video-container {
@@ -1095,24 +1015,6 @@ textarea.form-control {
   max-height: 100%;
 }
 
-/* DmmEmbedCard.tsx用カスタムサムネ背景 */
-.custom-thumbnail-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw; /* 画面幅いっぱいに設定 */
-  height: 100%;
-  z-index: 2;
-  cursor: pointer;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  margin-left: calc(-50vw + 50%); /* 中央寄せのための調整 */
-  margin-right: calc(-50vw + 50%);
-}
-.custom-thumbnail-bg[data-bg-url] {
-  background-image: var(--bg-url);
-}
 
 /* DmmEmbedCard.tsx用iframeレイアウト */
 .custom-iframe {
@@ -1126,15 +1028,14 @@ textarea.form-control {
   background: #1a1a1a;
 }
 
-/* duga-thumbnail, duga-video-containerもabsolute指定 */
-.duga-thumbnail, .duga-video-container {
+/* duga-video-container absolute指定 */
+.duga-video-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100vw; /* 画面幅いっぱいに設定 */
   height: 100%;
   z-index: 2;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;

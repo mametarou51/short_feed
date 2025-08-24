@@ -1,17 +1,6 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Video } from '@/types/video';
-
-// サムネイル画像URLを生成する関数
-function getThumbnailUrl(video: Video): string {
-  if (video.type === 'duga_iframe') {
-    // DUGAの場合はフォールバック画像を使用
-    return `/sample_img/240x180.jpg`;
-  } else {
-    // DMMの場合
-    return `https://pics.dmm.co.jp/digital/video/${video.id}/${video.id}pl.jpg`;
-  }
-}
 
 type UserBehavior = {
   videoId: string;
@@ -27,27 +16,6 @@ type Props = {
 
 export default function DmmEmbedCard({ video, onUserAction }: Props) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
-  const [showVideo, setShowVideo] = useState(false);
-  const [thumbnailError, setThumbnailError] = useState(false);
-  const dugaThumbnailRef = useRef<HTMLDivElement>(null);
-
-  // DUGAサムネイル読み込み（無効化）
-  useEffect(() => {
-    // DUGAサムネイルは表示しない
-    if (video.type === 'duga_iframe' && dugaThumbnailRef.current) {
-      // サムネイルなしで直接プレイボタンを表示
-    }
-  }, [video.type, video.id, video.offer.url, video.title]);
-
-  // サムネイルクリックで動画表示
-  const handleThumbnailClick = () => {
-    setShowVideo(true);
-    onUserAction({
-      videoId: video.id,
-      action: 'click',
-      timestamp: Date.now()
-    }, video);
-  };
 
   // DUGAビデオプレイヤーコンポーネント
   function DugaVideoPlayer({ video }: { video: Video }) {
@@ -75,6 +43,13 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
         playerScript.src = 'https://ad.duga.jp/flash/dugaflvplayer.js';
         playerScript.defer = true;
         document.head.appendChild(playerScript);
+        
+        onUserAction({
+          videoId: video.id,
+          action: 'view',
+          timestamp: Date.now()
+        }, video);
+        
         return () => {
           container.innerHTML = '';
           const existingScript = document.head.querySelector(`script[src='https://ad.duga.jp/flash/dugaflvplayer.js']`);
@@ -105,56 +80,31 @@ export default function DmmEmbedCard({ video, onUserAction }: Props) {
     );
   }
 
+  // 自動的に動画を表示し、ユーザー行動を記録
+  useEffect(() => {
+    onUserAction({
+      videoId: video.id,
+      action: 'view',
+      timestamp: Date.now()
+    }, video);
+  }, [video.id, onUserAction]);
+
   return (
     <section className="card" aria-label={video.title}>
-      <div className="video-thumbnail-container">
-        {/* サムネイルを動画に重ねて表示 */}
-        {!showVideo && (
-          video.type === 'duga_iframe' ? (
-            <div 
-              className="duga-thumbnail-placeholder"
-              onClick={handleThumbnailClick}
-              style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#1a1a1a',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <div className="play-button-overlay">
-                <div className="play-button-icon"></div>
-              </div>
-            </div>
-          ) : (
-            <div 
-              className={`video-thumbnail custom-thumbnail-bg`}
-              data-bg-url={getThumbnailUrl(video)}
-              onClick={handleThumbnailClick}
-            >
-              <div className="play-button-overlay">
-                <div className="play-button-icon"></div>
-              </div>
-            </div>
-          )
-        )}
-        {/* サムネイルクリック後に動画表示 */}
-        {showVideo && (
-          video.type === 'duga_iframe' ? (
-            <DugaVideoPlayer video={video} />
-          ) : (
-            <iframe
-              ref={frameRef}
-              src={video.embedSrc}
-              title={video.title}
-              className="video-iframe custom-iframe"
-              sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-              allow="autoplay; encrypted-media; picture-in-picture"
-              allowFullScreen
-            />
-          )
+      <div className="video-container">
+        {/* 動画を直接表示 */}
+        {video.type === 'duga_iframe' ? (
+          <DugaVideoPlayer video={video} />
+        ) : (
+          <iframe
+            ref={frameRef}
+            src={video.embedSrc}
+            title={video.title}
+            className="video-iframe custom-iframe"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+          />
         )}
       </div>
 

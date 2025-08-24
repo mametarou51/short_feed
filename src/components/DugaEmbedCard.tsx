@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Video } from '@/types/video';
 
 type UserBehavior = {
@@ -15,64 +15,11 @@ type Props = {
 };
 
 export default function DugaEmbedCard({ video, onUserAction }: Props) {
-  const [showVideo, setShowVideo] = useState(false);
-  const thumbnailRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
-
-  // DUGAサムネイル読み込み
-  useEffect(() => {
-    if (thumbnailRef.current) {
-      const container = thumbnailRef.current;
-      
-      // シンプルなサムネイル用のHTML構造を作成
-      const thumbnailId = `affimage-${video.id}`;
-      container.innerHTML = `<div id="${thumbnailId}"><a href="${video.offer.url}" target="_blank">${video.title}</a></div>`;
-      
-      // サムネイル用スクリプトを読み込み
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = `https://ad.duga.jp/affimage/ppv/${video.id}/1/48475-01`;
-      script.onload = () => {
-        // スクリプト読み込み後にinitAffImage関数を実行
-        setTimeout(() => {
-          if (typeof (window as any).initAffImage === 'function') {
-            try {
-              (window as any).initAffImage();
-            } catch (error) {
-              console.log('initAffImage error:', error);
-            }
-          }
-          
-          // サムネイル内のリンクのクリックを防ぐ
-          setTimeout(() => {
-            const thumbnailLinks = container.querySelectorAll('a');
-            thumbnailLinks.forEach(link => {
-              link.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              });
-            });
-          }, 100);
-        }, 100);
-      };
-      script.onerror = () => {
-        console.log(`Failed to load DUGA script for ${video.id}`);
-      };
-      document.body.appendChild(script);
-      
-      return () => {
-        // クリーンアップ
-        container.innerHTML = '';
-        if (script.parentNode) {
-          script.parentNode.removeChild(script);
-        }
-      };
-    }
-  }, [video.id, video.offer.url, video.title]);
 
   // DUGAプレイヤー読み込み
   useEffect(() => {
-    if (showVideo && playerRef.current) {
+    if (playerRef.current) {
       const container = playerRef.current;
       
       // プレイヤー用のHTML構造を作成
@@ -108,6 +55,12 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
       };
       document.body.appendChild(script);
       
+      onUserAction({
+        videoId: video.id,
+        action: 'view',
+        timestamp: Date.now()
+      }, video);
+      
       return () => {
         // クリーンアップ
         container.innerHTML = '';
@@ -116,68 +69,28 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
         }
       };
     }
-  }, [showVideo, video.id, video.offer.url, video.title]);
-
-  const handleThumbnailClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowVideo(true);
-    onUserAction({
-      videoId: video.id,
-      action: 'click',
-      timestamp: Date.now()
-    }, video);
-  };
+  }, [video.id, video.offer.url, video.title, onUserAction]);
 
   return (
     <section className="card" aria-label={video.title}>
-      <div className="video-thumbnail-container" style={{position: 'relative'}}>
-        {/* サムネイル表示 */}
-        {!showVideo && (
-          <div 
-            ref={thumbnailRef}
-            className="duga-thumbnail"
-            onClick={handleThumbnailClick}
-            style={{
-              position: 'absolute', 
-              top: 0, 
-              left: 0, 
-              width: '100%', 
-              height: '100%', 
-              zIndex: 2, 
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#1a1a1a'
-            }}
-          >
-            {/* プレイボタンオーバーレイ */}
-            <div className="play-button-overlay">
-              <div className="play-button-icon"></div>
-            </div>
-          </div>
-        )}
-        
+      <div className="video-container" style={{position: 'relative'}}>        
         {/* プレイヤー表示 */}
-        {showVideo && (
-          <div 
-            ref={playerRef}
-            className="duga-video-container"
-            style={{
-              width: '100%', 
-              height: '100%', 
-              position: 'absolute', 
-              top: 0, 
-              left: 0, 
-              zIndex: 1,
-              backgroundColor: '#1a1a1a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          />
-        )}
+        <div 
+          ref={playerRef}
+          className="duga-video-container"
+          style={{
+            width: '100%', 
+            height: '100%', 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            zIndex: 1,
+            backgroundColor: '#1a1a1a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        />
       </div>
 
       <div className="card-footer">

@@ -16,10 +16,6 @@ function toIsoDuration(seconds?: number): string | undefined {
   return `PT${s}S`;
 }
 
-// サムネイル推測（DMMは既知パターン、その他はフォールバック）
-function guessThumbnailUrl(videoId: string): string {
-  return `https://pics.dmm.co.jp/digital/video/${videoId}/${videoId}pl.jpg`;
-}
 
 type UserBehavior = {
   videoId: string;
@@ -197,7 +193,7 @@ export default function Home() {
         '@type': 'VideoObject',
         name: video.title,
         description: `${video.desc || video.title} - 無料エロ動画 | ${video.attributes?.studio || 'Short Feed'}の人気作品。${video.attributes?.genre?.join('・') || ''}${video.attributes?.tags?.join('・') || ''}などのジャンルで話題の動画を高画質で配信中。`,
-        thumbnailUrl: guessThumbnailUrl(video.id),
+        thumbnailUrl: `https://pics.dmm.co.jp/digital/video/${video.id}/${video.id}pl.jpg`,
         uploadDate: video.attributes?.releaseDate || new Date().toISOString().split('T')[0],
         duration: toIsoDuration(video.attributes?.duration as unknown as number | undefined),
         embedUrl: video.embedSrc,
