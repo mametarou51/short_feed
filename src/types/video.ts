@@ -13,6 +13,7 @@ export const VideoSchema = z.object({
   embedSrc: z.string().url(),
   offer: OfferSchema,
   description: z.string().optional(),
+  seoDescription: z.string().optional(),
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
   duration: z.string().optional(),

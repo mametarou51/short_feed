@@ -306,6 +306,55 @@ main, .feed {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
+/* SEO向けの詳細な概要欄 */
+.video-seo-description {
+  margin-bottom: 15px;
+}
+
+.seo-summary {
+  color: #ff6b6b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 12px;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  transition: all 0.3s ease;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.seo-summary:hover {
+  background: rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.5);
+}
+
+.seo-summary::after {
+  content: '▼';
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.seo-summary[aria-expanded="true"]::after {
+  transform: rotate(180deg);
+}
+
+.seo-content {
+  color: #ddd;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+}
+
 .video-duration {
   color: #aaa;
   font-size: 12px;

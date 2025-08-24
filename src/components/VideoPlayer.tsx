@@ -124,6 +124,18 @@ export default function VideoPlayer({ video, isVisible }: VideoPlayerProps) {
             </div>
           )}
           
+          {/* SEO向けの詳細な概要欄 */}
+          {video.seoDescription && (
+            <div className="video-seo-description">
+              <details>
+                <summary className="seo-summary">動画の詳細な内容について</summary>
+                <div className="seo-content">
+                  {video.seoDescription}
+                </div>
+              </details>
+            </div>
+          )}
+          
           {video.duration && (
             <div className="video-duration">
               再生時間: {video.duration}
