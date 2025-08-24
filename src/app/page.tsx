@@ -90,8 +90,18 @@ export default function Home() {
   const createContentItems = useCallback((videos: Video[], cycle: number): ContentItem[] => {
     if (!videos || videos.length === 0) return [];
     
-    // 動画リストを作成
-    const content: ContentItem[] = videos.filter(video => video.type === 'duga_iframe').map((video, index) => ({
+    // 動画リストを作成（duga_iframeタイプのみ）
+    const filteredVideos = videos.filter(video => video.type === 'duga_iframe');
+    if (filteredVideos.length === 0) return [];
+    
+    // 各サイクルで異なるシャッフルを適用
+    const shuffledVideos = [...filteredVideos];
+    for (let i = shuffledVideos.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledVideos[i], shuffledVideos[j]] = [shuffledVideos[j], shuffledVideos[i]];
+    }
+    
+    const content: ContentItem[] = shuffledVideos.map((video, index) => ({
       type: 'video' as const,
       id: `${video.id}-cycle-${cycle}`,
       content: video,
@@ -106,7 +116,7 @@ export default function Home() {
       content.splice(i, 0, {
         type: 'ad',
         id: `ad-${i}-cycle-${cycle}`,
-        adId: adCount % 2 === 0 ? '01' : '02', // 広告IDを交互に設定
+        adId: adCount % 3 === 0 ? '01' : adCount % 3 === 1 ? '02' : '03', // 広告IDを3つ循環で設定
         content: null,
         originalIndex: i,
         cycle
@@ -125,11 +135,11 @@ export default function Home() {
 
   // 初期コンテンツを設定
   useEffect(() => {
-    if (shuffledVideos.length > 0) {
-      const initialContent = createContentItems(shuffledVideos, 0);
+    if (videos.length > 0) {
+      const initialContent = createContentItems(videos, 0);
       setDisplayedContent(initialContent);
     }
-  }, [shuffledVideos, createContentItems]);
+  }, [videos, createContentItems]);
 
   // 無限スクロール用のIntersection Observer
   useEffect(() => {
@@ -141,7 +151,7 @@ export default function Home() {
           if (entry.isIntersecting) {
             // 最後のアイテムが見えたら、新しいサイクルのコンテンツを追加
             const newCycle = currentCycle + 1;
-            const newContent = createContentItems(shuffledVideos, newCycle);
+            const newContent = createContentItems(videos, newCycle);
             
             setDisplayedContent(prev => [...prev, ...newContent]);
             setCurrentCycle(newCycle);
@@ -158,7 +168,7 @@ export default function Home() {
         observerRef.current.disconnect();
       }
     };
-  }, [currentCycle, shuffledVideos, createContentItems]);
+  }, [currentCycle, videos, createContentItems]);
 
   // SEO最適化された構造化データ（先頭30件を ItemList として出力）
   const jsonLd = useMemo(() => {

@@ -52,10 +52,8 @@ export function useVideos(): UseVideosReturn {
         const data = await response.json();
         const adaptedVideos = (Array.isArray(data) ? data : []).map(adaptLegacyVideo);
         
-        // 無限スクロールのために動画配列を複製（3周分）
-        const extendedVideos = [...adaptedVideos, ...adaptedVideos, ...adaptedVideos];
-        
-        setVideos(extendedVideos);
+        // 元の動画配列を1つだけ保持（重複は削除）
+        setVideos(adaptedVideos);
       } catch (err) {
         console.error('Video loading error:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
