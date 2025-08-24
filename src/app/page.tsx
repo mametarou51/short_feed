@@ -91,19 +91,28 @@ export default function Home() {
     window.adsbyjuicy = window.adsbyjuicy || [];
     
     // JuicyAdsスクリプトが既に読み込まれているかチェック
-    if (!document.querySelector('script[src*="jads.js"]')) {
-      // スクリプトが読み込まれていない場合は読み込む
+    const existingScript = document.querySelector('script[src*="jads.js"]');
+    if (!existingScript) {
+      // スクリプト読み込みを試行
       const script = document.createElement('script');
       script.type = 'text/javascript';
       script.src = 'https://poweredby.jads.co/js/jads.js';
       script.async = true;
+      
+      // 成功時
       script.onload = () => {
         console.log('JuicyAds script loaded successfully');
       };
+      
+      // 失敗時（ブロックされた場合など）
       script.onerror = () => {
-        console.log('Failed to load JuicyAds script');
+        console.log('JuicyAds script blocked or failed to load');
+        // スクリプトがブロックされた場合、フォールバック表示を維持
       };
+      
       document.head.appendChild(script);
+    } else {
+      console.log('JuicyAds script already present');
     }
   }, []);
 
@@ -276,79 +285,63 @@ export default function Home() {
     };
   }, [shuffledVideos]);
 
-  // JuicyAds広告の初期化 - 強化版
+  // JuicyAds広告の初期化 - 改善版（過度なリトライを防止）
   useEffect(() => {
     const juicyAds = displayedContent.filter(item => item.type === 'ad' && item.adId === 'juicy');
     
     if (juicyAds.length > 0) {
-      let initAttempts = 0;
-      const maxAttempts = 10;
+      let hasAttemptedInit = false;
       
       const initializeJuicyAds = () => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !hasAttemptedInit) {
+          hasAttemptedInit = true;
+          
           try {
-            // window.adsbyjuicyが存在することを確認
+            // JuicyAdsスクリプトと配列の確認
             if (!window.adsbyjuicy || !Array.isArray(window.adsbyjuicy)) {
-              console.log('JuicyAds array not ready, attempt:', initAttempts + 1);
-              if (initAttempts < maxAttempts) {
-                initAttempts++;
-                setTimeout(initializeJuicyAds, 1000);
-                return;
-              }
+              console.log('JuicyAds not available, showing fallback');
+              return;
             }
             
             const adElement = document.querySelector('[id="1099699"]');
-            const fallbackElement = document.getElementById('juicy-fallback');
             
             if (adElement && !adElement.hasAttribute('data-juicy-initialized')) {
-              console.log('Initializing JuicyAds with adzone 1099699');
+              console.log('Attempting JuicyAds initialization');
               
-              // JuicyAds初期化
-              window.adsbyjuicy!.push({'adzone': 1099699});
+              // JuicyAds初期化（1回のみ）
+              window.adsbyjuicy.push({'adzone': 1099699});
               adElement.setAttribute('data-juicy-initialized', 'true');
               
-              // 5秒後に広告が読み込まれているかチェック
+              // 成功判定は1回だけ、8秒後にチェック
               setTimeout(() => {
-                const hasAdContent = adElement.querySelector('iframe, script, div[style*="width"], div[class]');
-                const hasInnerHTML = adElement.innerHTML.trim().length > 50;
+                const hasAdContent = adElement.querySelector('iframe, script, div[id], [class*="ad"]');
+                const hasSignificantContent = adElement.innerHTML.trim().length > 100;
                 
-                if (hasAdContent || hasInnerHTML) {
-                  console.log('JuicyAds loaded successfully');
-                  if (fallbackElement) {
-                    fallbackElement.style.display = 'none';
+                juicyAds.forEach((_, index) => {
+                  const fallbackElement = document.getElementById(`fallback-ad-${index}`) || 
+                                          document.querySelector(`[id*="fallback-"]:nth-of-type(${index + 1})`);
+                  
+                  if (hasAdContent || hasSignificantContent) {
+                    console.log('JuicyAds loaded successfully');
+                    if (fallbackElement) {
+                      fallbackElement.style.display = 'none';
+                    }
+                  } else {
+                    console.log('JuicyAds not loaded, showing fallback message');
+                    // フォールバックはCSSで既に表示されているので、何もしない
                   }
-                } else {
-                  console.log('JuicyAds failed to load, showing message');
-                  if (fallbackElement) {
-                    fallbackElement.innerHTML = '<div style="color: #666; font-size: 13px; text-align: center;">広告がブロックされています<br/><span style="font-size: 11px;">サイト運営のためご協力ください</span></div>';
-                  }
-                }
-              }, 5000);
-              
-              // さらに長時間後のチェック
-              setTimeout(() => {
-                const hasAdContent = adElement.querySelector('iframe, script, div[style*="width"], div[class]');
-                if (!hasAdContent && initAttempts < maxAttempts) {
-                  console.log('Retrying JuicyAds initialization...');
-                  adElement.removeAttribute('data-juicy-initialized');
-                  adElement.innerHTML = '';
-                  initAttempts++;
-                  setTimeout(initializeJuicyAds, 2000);
-                }
-              }, 10000);
+                });
+              }, 8000);
             }
           } catch (error) {
-            console.error('JuicyAds initialization error:', error);
-            if (initAttempts < maxAttempts) {
-              initAttempts++;
-              setTimeout(initializeJuicyAds, 2000);
-            }
+            console.log('JuicyAds initialization error:', error);
+            // エラーが発生した場合はフォールバック表示のまま
           }
         }
       };
       
-      // 初期化開始
-      const timer = setTimeout(initializeJuicyAds, 2000);
+      // 初期化開始（1回のみ）
+      const timer = setTimeout(initializeJuicyAds, 3000);
       return () => clearTimeout(timer);
     }
   }, [displayedContent]);
@@ -394,49 +387,85 @@ export default function Home() {
                 alignItems: 'center',
                 justifyContent: 'center', 
                 backgroundColor: '#1a1a1a',
-                minHeight: '300px',
-                padding: '20px',
+                minHeight: '250px',
+                padding: '15px',
                 position: 'relative',
-                border: '1px solid #333'
+                border: '1px solid #333',
+                borderRadius: '8px'
               }}>
-                {/* JuicyAds - より大きなサイズとフォールバック */}
+                {/* 代替広告ソリューション */}
                 <div 
-                  id="juicy-ad-container" 
+                  id={`juicy-ad-${item.id}`}
                   style={{
-                    width: '320px',
+                    width: '100%',
+                    maxWidth: '320px',
                     height: '250px',
                     backgroundColor: 'transparent',
-                    position: 'relative'
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
                 >
+                  {/* JuicyAds要素 - ユニークID使用 */}
                   <ins 
-                    id="1099699" 
+                    id={`juicy-ad-${item.cycle}-${item.originalIndex}`}
+                    className="juicy-ads-zone"
                     data-width="320" 
                     data-height="250"
+                    data-adzone="1099699"
                     style={{
                       display: 'block',
-                      width: '320px',
-                      height: '250px',
+                      width: '100%',
+                      height: '100%',
                       backgroundColor: 'transparent'
                     }}
                   ></ins>
-                  {/* フォールバック表示 */}
+                  
+                  {/* 改善されたフォールバック */}
                   <div 
-                    id="juicy-fallback"
+                    id={`fallback-${item.id}`}
                     style={{
                       position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
+                      top: '0',
+                      left: '0',
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       color: '#888',
                       textAlign: 'center',
                       fontSize: '14px',
                       zIndex: 1,
-                      pointerEvents: 'none'
+                      background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)',
+                      borderRadius: '6px'
                     }}
                   >
-                    <div>広告を読み込み中...</div>
-                    <div style={{ fontSize: '12px', marginTop: '5px' }}>AdBlockを無効にしてください</div>
+                    <div style={{ 
+                      marginBottom: '10px',
+                      fontSize: '16px',
+                      fontWeight: '500'
+                    }}>
+                      📢 広告スペース
+                    </div>
+                    <div style={{ 
+                      fontSize: '13px',
+                      lineHeight: '1.4',
+                      opacity: '0.8',
+                      maxWidth: '250px'
+                    }}>
+                      サイト運営のため、広告ブロッカーを無効にしていただけると助かります
+                    </div>
+                    <div style={{
+                      marginTop: '10px',
+                      padding: '6px 12px',
+                      backgroundColor: '#333',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      opacity: '0.6'
+                    }}>
+                      AdBlock無効化をお願いします
+                    </div>
                   </div>
                 </div>
               </div>
