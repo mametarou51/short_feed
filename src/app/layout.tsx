@@ -17,7 +17,15 @@ export const metadata: Metadata = {
       'x-default': '/',
     },
   },
-  icons: { icon: "/favicon.ico" },
+  icons: { 
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: { 
     title: 'ショートポルノ動画 ShortPorn | 縦スクロール無料エロ動画・AV女優・素人',
     description: 'YouTubeショート風の縦スクロールでショートポルノ動画を連続視聴！人気AV女優、素人、巨乳など豊富なジャンルを縦型動画で完全無料配信。スマホ最適化済み。',
@@ -109,6 +117,16 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//ad.duga.jp" />
         <link rel="preconnect" href="https://click.duga.jp" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//click.duga.jp" />
+        {/* アイコン設定 */}
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+        <meta name="theme-color" content="#FF6B9D" />
+        
         {/* 重要なリソースのプリロード */}
         <link rel="preload" href="/videos.json" as="fetch" crossOrigin="anonymous" />
         <link rel="preload" href="/sample_img/240x180.jpg" as="image" />
