@@ -453,27 +453,67 @@ export default function Home() {
                   justifyContent: 'center', 
                   backgroundColor: '#000',
                   border: '2px solid red', // デバッグ用
-                  minHeight: '140px'
+                  minHeight: '140px',
+                  position: 'relative'
                 }}
-                ref={() => {
+                ref={(element) => {
                   console.log(`🎯 Rendering JuicyAds ad:`, { 
                     itemId: item.id, 
                     adId: item.adId, 
                     adProvider: item.adProvider,
                     cycle: item.cycle 
                   });
+                  
+                  // JuicyAdsスクリプトとINS要素の手動初期化
+                  if (element && typeof window !== 'undefined' && window.adsbyjuicy) {
+                    const uniqueId = `juicy-${item.cycle}-${item.originalIndex}`;
+                    const insElement = element.querySelector(`ins[data-juicy-id="${uniqueId}"]`);
+                    if (insElement && insElement.getAttribute('data-juicy-initialized') !== 'true') {
+                      console.log('🔥 Manual JuicyAds initialization attempt for:', uniqueId);
+                      try {
+                        // JuicyAdsに広告ゾーンを登録
+                        window.adsbyjuicy.push({'adzone': 1099712});
+                        insElement.setAttribute('data-juicy-initialized', 'true');
+                        console.log('🎯 Manual initialization completed for:', uniqueId);
+                        
+                        // グローバルJuicyAds関数を呼び出してみる
+                        setTimeout(() => {
+                          try {
+                            if ((window as any).adsbyjuicy) {
+                              console.log('🔥 Triggering JuicyAds refresh');
+                              // 強制的にJuicyAdsを再実行
+                              const script = document.createElement('script');
+                              script.innerHTML = `(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1099712});`;
+                              document.head.appendChild(script);
+                            }
+                          } catch (error) {
+                            console.error('❌ Refresh error:', error);
+                          }
+                        }, 200);
+                      } catch (error) {
+                        console.error('❌ Manual initialization error:', error);
+                      }
+                    }
+                  }
                 }}
               >
-                {/* JuicyAds v3.0 */}
+                {/* JuicyAds v3.0 - 公式形式 */}
                 <ins 
                   id="1099712" 
+                  data-juicy-id={`juicy-${item.cycle}-${item.originalIndex}`}
                   data-width="108" 
                   data-height="140"
                   data-juicy-initialized="false"
-                  style={{ display: 'block', backgroundColor: 'blue' }} // デバッグ用
+                  style={{ 
+                    display: 'block', 
+                    backgroundColor: 'blue', // デバッグ用
+                    width: '108px',
+                    height: '140px',
+                    margin: '0 auto'
+                  }}
                 ></ins>
-                <div style={{ color: 'white', fontSize: '12px', marginLeft: '10px' }}>
-                  JuicyAds Debug - ID: 1099712
+                <div style={{ color: 'white', fontSize: '12px', position: 'absolute', bottom: '5px', right: '5px' }}>
+                  JuicyAds 1099712
                 </div>
               </div>
             ) : (
