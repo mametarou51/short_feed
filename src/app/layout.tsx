@@ -105,6 +105,8 @@ export default function RootLayout({
         <meta name="RATING" content="RTA-5042-1996-1400-1577-RTA" />
         <meta name="content-rating" content="mature" />
         <meta name="audience" content="adult" />
+        {/* JuicyAds サイト認証 */}
+        <meta name="juicyads-site-verification" content="4f146c13e184d12bf7a1249f874cc53c" />
         {/* パフォーマンス最適化 */}
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="format-detection" content="telephone=no" />

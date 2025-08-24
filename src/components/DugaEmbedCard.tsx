@@ -175,6 +175,15 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
         <div className="offer-name">{video.offer.name}</div>
         {video.desc && <div className="video-description">{video.desc}</div>}
         <div className="video-title">{video.title}</div>
+        {video.tags && video.tags.length > 0 && (
+          <div className="video-tags">
+            {video.tags.slice(0, 3).map((tag, index) => (
+              <span key={index} className="tag">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
         <a
           href={video.offer.url}
           target="_blank"
