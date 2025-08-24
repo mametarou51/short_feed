@@ -283,8 +283,8 @@ export default function Home() {
       const checkAndInit = () => {
         if (typeof window !== 'undefined' && window.adsbyjuicy && Array.isArray(window.adsbyjuicy)) {
           try {
-            // 既に初期化されているかチェック
-            const existingAd = document.querySelector('#1099699');
+            // 既に初期化されているかチェック（CSS IDセレクターを修正）
+            const existingAd = document.querySelector('[id="1099699"]');
             if (existingAd && !existingAd.hasAttribute('data-juicy-initialized')) {
               window.adsbyjuicy.push({'adzone': 1099699});
               existingAd.setAttribute('data-juicy-initialized', 'true');
