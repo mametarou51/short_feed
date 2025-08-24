@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://short-feed.pages.dev'),
@@ -119,6 +120,8 @@ export default function RootLayout({
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }}
         />
+        {/* Google Analytics */}
+        <GoogleAnalytics GA_MEASUREMENT_ID="G-XXXXXXXXXX" />
       </head>
       <body className="layout-body">
         <header className="site-header">

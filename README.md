@@ -8,7 +8,7 @@ A vertical scrolling short video platform with affiliate link tracking, built wi
 - 🎥 HLS video streaming with auto-play/pause based on visibility
 - 🔗 Click tracking and affiliate link redirection via Cloudflare Workers
 - 🛡️ Age verification gate (18+ content)
-- 📊 Analytics integration with Plausible
+- 📊 Analytics integration with Plausible & Google Analytics
 - ⚡ Fast CDN delivery via bunny.net
 
 ## Architecture
@@ -16,7 +16,7 @@ A vertical scrolling short video platform with affiliate link tracking, built wi
 - **Frontend**: Next.js 14 (App Router, TypeScript)
 - **Video CDN**: bunny.net (HLS streaming)
 - **Click Tracking**: Cloudflare Workers + KV storage
-- **Analytics**: Plausible
+- **Analytics**: Plausible & Google Analytics 4
 - **Hosting**: Cloudflare Pages / Vercel
 
 ## Local Development
@@ -110,12 +110,32 @@ The Worker will handle `/go/:id` routes for click tracking and redirection.
 4. Copy the HLS URLs to your `videos.json`
 5. Set up poster images for better loading experience
 
-## Analytics Setup (Plausible)
+## Analytics Setup
+
+### Plausible
 
 1. Create account at https://plausible.io
 2. Add your domain
 3. Configure the API endpoint in Workers environment
 4. Track `click_out` events with video ID metadata
+
+### Google Analytics 4
+
+1. Create a Google Analytics 4 property at https://analytics.google.com/
+2. Get your Measurement ID (format: G-XXXXXXXXXX)
+3. Replace `G-XXXXXXXXXX` in `src/app/layout.tsx` with your actual Measurement ID:
+   ```tsx
+   <GoogleAnalytics GA_MEASUREMENT_ID="G-XXXXXXXXXX" />
+   ```
+4. For production, consider using environment variables:
+   ```bash
+   # .env.local
+   NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+   ```
+   Then update the component call:
+   ```tsx
+   <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX'} />
+   ```
 
 ## Deployment
 
