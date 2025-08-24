@@ -283,8 +283,8 @@ export default function Home() {
         
         if (typeof window !== 'undefined' && window.adsbyjuicy && Array.isArray(window.adsbyjuicy)) {
           try {
-            // JuicyAds要素を探す
-            const existingAd = document.querySelector('[id="1099712"]');
+            // JuicyAds要素を探す - 正しいIDで検索
+            const existingAd = document.querySelector('[data-juicy-id*="juicy"]');
             console.log('🔍 Looking for JuicyAds element:', existingAd);
             
             if (existingAd && existingAd.getAttribute('data-juicy-initialized') !== 'true') {
@@ -292,6 +292,14 @@ export default function Home() {
               window.adsbyjuicy.push({'adzone': 1099712});
               existingAd.setAttribute('data-juicy-initialized', 'true');
               console.log('✅ JuicyAds initialization completed');
+              
+              // JuicyAds広告が5秒後に表示されない場合はフォールバック表示
+              setTimeout(() => {
+                if (existingAd && existingAd.innerHTML.trim() === '') {
+                  console.log('⚠️ JuicyAds not displaying, showing fallback');
+                  existingAd.innerHTML = '<div style="background:#333;color:#fff;padding:20px;text-align:center;font-size:12px;">JuicyAds<br>ID: 1099712<br>(Advertisement loading...)</div>';
+                }
+              }, 5000);
             } else if (existingAd) {
               console.log('ℹ️ JuicyAds element already initialized:', existingAd.getAttribute('data-juicy-initialized'));
             } else {
@@ -476,20 +484,31 @@ export default function Home() {
                         insElement.setAttribute('data-juicy-initialized', 'true');
                         console.log('🎯 Manual initialization completed for:', uniqueId);
                         
-                        // グローバルJuicyAds関数を呼び出してみる
+                        // JuicyAds広告監視とフォールバック
                         setTimeout(() => {
-                          try {
-                            if ((window as any).adsbyjuicy) {
-                              console.log('🔥 Triggering JuicyAds refresh');
-                              // 強制的にJuicyAdsを再実行
-                              const script = document.createElement('script');
-                              script.innerHTML = `(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1099712});`;
-                              document.head.appendChild(script);
-                            }
-                          } catch (error) {
-                            console.error('❌ Refresh error:', error);
+                          if (insElement && insElement.innerHTML.trim() === '') {
+                            console.log('⚠️ Manual JuicyAds not displaying, attempting alternate method');
+                            // 代替的な実装方法を試行
+                            const altScript = document.createElement('script');
+                            altScript.innerHTML = `
+                              try {
+                                if (window.adsbyjuicy && window.adsbyjuicy.length > 0) {
+                                  window.adsbyjuicy.push({'adzone': 1099712});
+                                }
+                              } catch(e) { console.log('Alt method failed:', e); }
+                            `;
+                            document.head.appendChild(altScript);
+                            
+                            // 5秒後にフォールバック表示
+                            setTimeout(() => {
+                              if (insElement && insElement.innerHTML.trim() === '') {
+                                console.log('🎨 Showing manual fallback for:', uniqueId);
+                                (insElement as HTMLElement).style.backgroundColor = '#1a1a1a';
+                                insElement.innerHTML = '<div style="color:#888;font-size:11px;text-align:center;padding:10px;">JuicyAds 1099712<br>Loading...</div>';
+                              }
+                            }, 5000);
                           }
-                        }, 200);
+                        }, 2000);
                       } catch (error) {
                         console.error('❌ Manual initialization error:', error);
                       }
