@@ -84,27 +84,26 @@ export default function Home() {
 
   // JuicyAdsの初期化
   useEffect(() => {
+    // クライアントサイドでのみ実行
+    if (typeof window === 'undefined') return;
+    
+    // window.adsbyjuicyを初期化（スクリプト読み込み前でも安全）
+    window.adsbyjuicy = window.adsbyjuicy || [];
+    
     // JuicyAdsスクリプトが既に読み込まれているかチェック
-    if (typeof window !== 'undefined' && !window.adsbyjuicy) {
+    if (!document.querySelector('script[src*="jads.js"]')) {
       // スクリプトが読み込まれていない場合は読み込む
       const script = document.createElement('script');
       script.type = 'text/javascript';
       script.src = 'https://poweredby.jads.co/js/jads.js';
       script.async = true;
       script.onload = () => {
-        // スクリプト読み込み完了後、adsbyjuicyを初期化
-        if (typeof window !== 'undefined') {
-          window.adsbyjuicy = window.adsbyjuicy || [];
-          console.log('JuicyAds script loaded successfully');
-        }
+        console.log('JuicyAds script loaded successfully');
       };
       script.onerror = () => {
         console.log('Failed to load JuicyAds script');
       };
       document.head.appendChild(script);
-    } else if (typeof window !== 'undefined') {
-      // 既に読み込まれている場合は初期化
-      window.adsbyjuicy = window.adsbyjuicy || [];
     }
   }, []);
 
