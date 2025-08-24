@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import DugaEmbedCard from "@/components/DugaEmbedCard";
 import { useVideos } from "@/hooks/useVideos";
 import useRecommendationAlgorithm from "@/hooks/useRecommendationAlgorithm";
+import type { Video } from "@/types/video";
 
 // 期間を ISO 8601 に変換（例: 180 -> PT3M）
 function toIsoDuration(seconds?: number): string | undefined {
@@ -24,6 +25,14 @@ type UserBehavior = {
   action: 'view' | 'skip' | 'complete' | 'click';
   duration?: number;
   timestamp: number;
+};
+
+type ContentItem = {
+  type: 'video' | 'ad';
+  id: string;
+  content: Video | null;
+  adId?: string;
+  originalIndex: number;
 };
 
 function AgeGate({ onAllow }: { onAllow: () => void }) {
@@ -71,6 +80,41 @@ export default function Home() {
     }
     return shuffled;
   }, [videos]);
+
+  // 動画と広告を混ぜ込んでランダム表示
+  const shuffledContent: ContentItem[] = useMemo(() => {
+    if (!shuffledVideos || shuffledVideos.length === 0) return [];
+    
+    // 動画リストを作成
+    const content: ContentItem[] = shuffledVideos.filter(video => video.type === 'duga_iframe').map((video, index) => ({
+      type: 'video' as const,
+      id: video.id,
+      content: video,
+      originalIndex: index
+    }));
+    
+    // 広告を動画の数に応じて複数挿入（例：動画10個につき1個の広告）
+    const adInterval = Math.max(5, Math.floor(content.length / 10));
+    let adCount = 0;
+    for (let i = adInterval; i < content.length; i += adInterval) {
+      content.splice(i, 0, {
+        type: 'ad',
+        id: `ad-${i}`,
+        adId: adCount % 2 === 0 ? '01' : '02', // 広告IDを交互に設定
+        content: null,
+        originalIndex: i
+      });
+      adCount++;
+    }
+    
+    // 全体をシャッフル
+    for (let i = content.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [content[i], content[j]] = [content[j], content[i]];
+    }
+    
+    return content;
+  }, [shuffledVideos]);
 
   // SEO最適化された構造化データ（先頭30件を ItemList として出力）
   const jsonLd = useMemo(() => {
@@ -159,13 +203,38 @@ export default function Home() {
         />
       )}
       {!ok && <AgeGate onAllow={() => setOk(true)} />}
-      {ok && shuffledVideos.filter(video => video.type === 'duga_iframe').map(video =>
-        <DugaEmbedCard
-          key={video.id}
-          video={video}
-          onUserAction={trackUserBehavior}
-        />
-      )}
+      {ok && shuffledContent.map((item, index) => (
+        <div key={item.id}>
+          {item.type === 'video' && item.content ? (
+            <DugaEmbedCard
+              video={item.content}
+              onUserAction={trackUserBehavior}
+            />
+          ) : item.type === 'ad' ? (
+            <div className="ad-container" style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              padding: '20px 0',
+              backgroundColor: '#f5f5f5',
+              margin: '10px 0'
+            }}>
+              <iframe 
+                src={`https://ad.duga.jp/dynamic/48475/${item.adId}/`} 
+                marginWidth={0} 
+                marginHeight={0} 
+                width={420} 
+                height={180} 
+                frameBorder={0} 
+                style={{border: 'none'}} 
+                scrolling="no"
+                title="DUGA広告"
+              >
+                <a href={`https://click.duga.jp/48475-${item.adId}`} target="_blank" rel="noopener noreferrer">DUGA</a>
+              </iframe>
+            </div>
+          ) : null}
+        </div>
+      ))}
     </main>
   );
 }
