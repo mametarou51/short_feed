@@ -39,6 +39,7 @@ type ContentItem = {
   id: string;
   content: Video | null;
   adId?: string;
+  adProvider?: 'duga' | 'juicy';
   originalIndex: number;
   cycle: number; // 何周目かを示す
 };
@@ -84,26 +85,41 @@ export default function Home() {
 
   // JuicyAdsの初期化
   useEffect(() => {
+    console.log('🔍 JuicyAds initialization useEffect triggered');
+    
     // クライアントサイドでのみ実行
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      console.log('❌ Window is undefined, skipping JuicyAds initialization');
+      return;
+    }
+    
+    console.log('✅ Client-side detected, proceeding with JuicyAds initialization');
     
     // window.adsbyjuicyを初期化（スクリプト読み込み前でも安全）
     window.adsbyjuicy = window.adsbyjuicy || [];
+    console.log('📝 window.adsbyjuicy initialized:', window.adsbyjuicy);
     
     // JuicyAdsスクリプトが既に読み込まれているかチェック
-    if (!document.querySelector('script[src*="jads.js"]')) {
+    const existingScript = document.querySelector('script[src*="jads.js"]');
+    console.log('🔍 Checking for existing JuicyAds script:', existingScript);
+    
+    if (!existingScript) {
+      console.log('📥 Loading JuicyAds script...');
       // スクリプトが読み込まれていない場合は読み込む
       const script = document.createElement('script');
       script.type = 'text/javascript';
       script.src = 'https://poweredby.jads.co/js/jads.js';
       script.async = true;
       script.onload = () => {
-        console.log('JuicyAds script loaded successfully');
+        console.log('✅ JuicyAds script loaded successfully');
+        console.log('📊 window.adsbyjuicy after script load:', window.adsbyjuicy);
       };
-      script.onerror = () => {
-        console.log('Failed to load JuicyAds script');
+      script.onerror = (error) => {
+        console.error('❌ Failed to load JuicyAds script:', error);
       };
       document.head.appendChild(script);
+    } else {
+      console.log('✅ JuicyAds script already exists');
     }
   }, []);
 
@@ -152,17 +168,42 @@ export default function Home() {
     // 広告を動画の数に応じて複数挿入（例：動画10個につき1個の広告）
     const adInterval = Math.max(5, Math.floor(content.length / 10));
     let adCount = 0;
+    console.log(`📊 Creating ads for cycle ${cycle}:`, {
+      contentLength: content.length,
+      adInterval,
+      estimatedAdCount: Math.floor(content.length / adInterval)
+    });
+    
     for (let i = adInterval; i < content.length; i += adInterval) {
+      const isJuicyAd = adCount % 4 === 3; // 4回に1回JuicyAds (0,1,2がDUGA、3がJuicy)
+      const adId = isJuicyAd ? 'juicy' : (adCount % 3 === 0 ? '01' : adCount % 3 === 1 ? '02' : '03');
+      const adProvider = isJuicyAd ? 'juicy' : 'duga';
+      
+      console.log(`🎯 Creating ad ${adCount}:`, {
+        position: i,
+        adId,
+        adProvider,
+        isJuicyAd,
+        cycle
+      });
+      
       content.splice(i, 0, {
         type: 'ad',
         id: `ad-${i}-cycle-${cycle}`,
-        adId: adCount % 4 === 0 ? '01' : adCount % 4 === 1 ? '02' : adCount % 4 === 2 ? '03' : 'juicy', // 広告IDを4つ循環で設定（DUGA 3つ + JuicyAds 1つ）
+        adId,
+        adProvider,
         content: null,
         originalIndex: i,
         cycle
       });
       adCount++;
     }
+    
+    console.log(`📈 Ads creation completed for cycle ${cycle}:`, {
+      totalAdsCreated: adCount,
+      juicyAdsCount: Math.floor(adCount / 4),
+      dugaAdsCount: adCount - Math.floor(adCount / 4)
+    });
     
     // 全体をシャッフル
     for (let i = content.length - 1; i > 0; i--) {
@@ -215,6 +256,69 @@ export default function Home() {
       }
     };
   }, [currentCycle, shuffledVideos, createContentItems]);
+
+  // JuicyAds広告の初期化
+  useEffect(() => {
+    const hasJuicyAd = displayedContent.some(item => item.type === 'ad' && item.adProvider === 'juicy');
+    console.log('🎯 JuicyAds ad initialization check:', {
+      hasJuicyAd,
+      totalContent: displayedContent.length,
+      adItems: displayedContent.filter(item => item.type === 'ad').map(item => ({ 
+        id: item.id, 
+        adId: item.adId, 
+        adProvider: item.adProvider 
+      }))
+    });
+    
+    if (hasJuicyAd) {
+      console.log('🚀 JuicyAds ad found, starting initialization process...');
+      
+      // JuicyAds広告が表示されている場合、スクリプトが読み込まれるまで待つ
+      const checkAndInit = () => {
+        console.log('🔄 Checking JuicyAds readiness...', {
+          windowExists: typeof window !== 'undefined',
+          adsbyjuicyExists: !!(window as any)?.adsbyjuicy,
+          isArray: Array.isArray((window as any)?.adsbyjuicy)
+        });
+        
+        if (typeof window !== 'undefined' && window.adsbyjuicy && Array.isArray(window.adsbyjuicy)) {
+          try {
+            // JuicyAds要素を探す
+            const existingAd = document.querySelector('[id="1099712"]');
+            console.log('🔍 Looking for JuicyAds element:', existingAd);
+            
+            if (existingAd && !existingAd.hasAttribute('data-juicy-initialized')) {
+              console.log('📢 Pushing to JuicyAds queue: adzone 1099712');
+              window.adsbyjuicy.push({'adzone': 1099712});
+              existingAd.setAttribute('data-juicy-initialized', 'true');
+              console.log('✅ JuicyAds initialization completed');
+            } else if (existingAd) {
+              console.log('ℹ️ JuicyAds element already initialized');
+            } else {
+              console.log('⚠️ JuicyAds element not found in DOM');
+            }
+          } catch (error) {
+            console.error('❌ JuicyAds initialization error:', error);
+          }
+        } else {
+          console.log('⏳ JuicyAds not ready yet, retrying in 500ms...');
+          // まだ読み込まれていない場合は再試行
+          setTimeout(checkAndInit, 500);
+        }
+      };
+      
+      // 初回チェックを少し遅らせる
+      console.log('⏰ Scheduling JuicyAds initialization check in 1000ms...');
+      const timer = setTimeout(checkAndInit, 1000);
+      
+      return () => {
+        console.log('🧹 Cleaning up JuicyAds initialization timer');
+        clearTimeout(timer);
+      };
+    } else {
+      console.log('ℹ️ No JuicyAds found in current content');
+    }
+  }, [displayedContent]);
 
   // SEO最適化された構造化データ（先頭30件を ItemList として出力）
   const jsonLd = useMemo(() => {
@@ -340,20 +444,37 @@ export default function Home() {
               onUserAction={trackUserBehavior}
             />
           ) : item.type === 'ad' ? (
-            item.adId === 'juicy' ? (
-              <div className="card ad-container" style={{ 
-                display: 'flex', 
-                alignItems: 'center',
-                justifyContent: 'center', 
-                backgroundColor: '#000'
-              }}>
+            item.adProvider === 'juicy' ? (
+              <div 
+                className="card ad-container" 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  justifyContent: 'center', 
+                  backgroundColor: '#000',
+                  border: '2px solid red', // デバッグ用
+                  minHeight: '140px'
+                }}
+                ref={() => {
+                  console.log(`🎯 Rendering JuicyAds ad:`, { 
+                    itemId: item.id, 
+                    adId: item.adId, 
+                    adProvider: item.adProvider,
+                    cycle: item.cycle 
+                  });
+                }}
+              >
                 {/* JuicyAds v3.0 */}
                 <ins 
-                  id="1099699" 
+                  id="1099712" 
                   data-width="108" 
                   data-height="140"
                   data-juicy-initialized="false"
+                  style={{ display: 'block', backgroundColor: 'blue' }} // デバッグ用
                 ></ins>
+                <div style={{ color: 'white', fontSize: '12px', marginLeft: '10px' }}>
+                  JuicyAds Debug - ID: 1099712
+                </div>
               </div>
             ) : (
               <div className="card ad-container" style={{ 
