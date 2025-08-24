@@ -5,6 +5,13 @@ import { useVideos } from "@/hooks/useVideos";
 import useRecommendationAlgorithm from "@/hooks/useRecommendationAlgorithm";
 import type { Video } from "@/types/video";
 
+// JuicyAdsの型定義
+declare global {
+  interface Window {
+    adsbyjuicy?: any[];
+  }
+}
+
 // 期間を ISO 8601 に変換（例: 180 -> PT3M）
 function toIsoDuration(seconds?: number): string | undefined {
   if (!seconds || seconds <= 0) return undefined;
@@ -73,6 +80,28 @@ export default function Home() {
 
   useEffect(() => { 
     setOk(!!localStorage.getItem("agreed18"));
+  }, []);
+
+  // JuicyAdsの初期化
+  useEffect(() => {
+    // JuicyAdsスクリプトが既に読み込まれているかチェック
+    if (typeof window !== 'undefined' && !window.adsbyjuicy) {
+      // スクリプトが読み込まれていない場合は読み込む
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://poweredby.jads.co/js/jads.js';
+      script.async = true;
+      script.onload = () => {
+        // スクリプト読み込み完了後、adsbyjuicyを初期化
+        if (typeof window !== 'undefined') {
+          window.adsbyjuicy = window.adsbyjuicy || [];
+        }
+      };
+      document.head.appendChild(script);
+    } else if (typeof window !== 'undefined') {
+      // 既に読み込まれている場合は初期化
+      window.adsbyjuicy = window.adsbyjuicy || [];
+    }
   }, []);
 
   // 完全ランダムシャッフル
@@ -244,6 +273,24 @@ export default function Home() {
     };
   }, [shuffledVideos]);
 
+  // JuicyAds広告の初期化
+  useEffect(() => {
+    if (displayedContent.some(item => item.type === 'ad' && item.adId === 'juicy')) {
+      // JuicyAds広告が表示されている場合、少し待ってから初期化
+      const timer = setTimeout(() => {
+        if (typeof window !== 'undefined' && window.adsbyjuicy) {
+          try {
+            window.adsbyjuicy.push({'adzone': 1099699});
+          } catch (error) {
+            console.log('JuicyAds initialization error:', error);
+          }
+        }
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [displayedContent]);
+
   if (loading) {
     return (
       <main className="feed no-scrollbar">
@@ -287,10 +334,7 @@ export default function Home() {
                 backgroundColor: '#000'
               }}>
                 {/* JuicyAds v3.0 */}
-                <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
                 <ins id="1099699" data-width="108" data-height="140"></ins>
-                <script type="text/javascript" data-cfasync="false" async dangerouslySetInnerHTML={{ __html: "(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1099699});" }}></script>
-                {/*JuicyAds END*/}
               </div>
             ) : (
               <div className="card ad-container" style={{ 
