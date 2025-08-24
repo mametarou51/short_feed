@@ -1,25 +1,8 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- 背景円 -->
-  <circle cx="256" cy="256" r="240" fill="#FF6B9D" stroke="#E91E63" stroke-width="8"/>
+  <circle cx="256" cy="256" r="240" fill="white" stroke="black" stroke-width="8"/>
   
   <!-- 中央の動画プレイボタン -->
-  <circle cx="256" cy="256" r="80" fill="white" opacity="0.9"/>
-  <polygon points="236,226 236,286 296,256" fill="#E91E63"/>
-  
-  <!-- 縦スクロールを表現する矢印 -->
-  <g fill="white" opacity="0.8">
-    <!-- 上向き矢印 -->
-    <polygon points="256,120 246,140 266,140"/>
-    <rect x="251" y="140" width="10" height="20"/>
-    
-    <!-- 下向き矢印 -->
-    <polygon points="256,392 246,372 266,372"/>
-    <rect x="251" y="352" width="10" height="20"/>
-  </g>
-  
-  <!-- 装飾的な要素 -->
-  <circle cx="120" cy="120" r="15" fill="white" opacity="0.3"/>
-  <circle cx="392" cy="120" r="12" fill="white" opacity="0.3"/>
-  <circle cx="120" cy="392" r="12" fill="white" opacity="0.3"/>
-  <circle cx="392" cy="392" r="15" fill="white" opacity="0.3"/>
+  <circle cx="256" cy="256" r="80" fill="black" opacity="0.9"/>
+  <polygon points="236,226 236,286 296,256" fill="white"/>
 </svg>

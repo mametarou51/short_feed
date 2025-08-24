@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import DugaEmbedCard from "@/components/DugaEmbedCard";
 import { useVideos } from "@/hooks/useVideos";
 import useRecommendationAlgorithm from "@/hooks/useRecommendationAlgorithm";
@@ -63,8 +63,13 @@ function AgeGate({ onAllow }: { onAllow: () => void }) {
 
 export default function Home() {
   const [ok, setOk] = useState(false);
+  const [displayedContent, setDisplayedContent] = useState<ContentItem[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { videos, loading, error } = useVideos();
   const { sortVideosByRecommendation, trackUserBehavior } = useRecommendationAlgorithm();
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { 
     setOk(!!localStorage.getItem("agreed18"));
@@ -82,32 +87,46 @@ export default function Home() {
   }, [videos]);
 
   // 動画と広告を混ぜ込んでランダム表示
-  const shuffledContent: ContentItem[] = useMemo(() => {
+  const generateContentBatch = useCallback((startIndex: number, batchSize: number = 20): ContentItem[] => {
     if (!shuffledVideos || shuffledVideos.length === 0) return [];
     
-    // 動画リストを作成
-    const content: ContentItem[] = shuffledVideos.filter(video => video.type === 'duga_iframe').map((video, index) => ({
-      type: 'video' as const,
-      id: video.id,
-      content: video,
-      originalIndex: index
-    }));
+    // 動画リストを作成（重複を避けるためにstartIndexから開始）
+    const availableVideos = [...shuffledVideos, ...shuffledVideos]; // 2回分の動画を用意
+    const startVideoIndex = startIndex % shuffledVideos.length;
+    const endVideoIndex = Math.min(startVideoIndex + batchSize, startVideoIndex + batchSize);
     
-    // 広告を動画の数に応じて複数挿入（例：動画10個につき1個の広告）
+    const content: ContentItem[] = [];
+    
+    // 指定された範囲の動画を取得
+    for (let i = 0; i < batchSize; i++) {
+      const videoIndex = (startVideoIndex + i) % shuffledVideos.length;
+      const video = availableVideos[videoIndex];
+      
+      if (video && video.type === 'duga_iframe') {
+        content.push({
+          type: 'video' as const,
+          id: `${video.id}-${startIndex}-${i}`, // 重複を避けるためのユニークID
+          content: video,
+          originalIndex: videoIndex
+        });
+      }
+    }
+    
+    // 広告を動画の数に応じて複数挿入
     const adInterval = Math.max(5, Math.floor(content.length / 10));
     let adCount = 0;
     for (let i = adInterval; i < content.length; i += adInterval) {
       content.splice(i, 0, {
         type: 'ad',
-        id: `ad-${i}`,
-        adId: adCount % 2 === 0 ? '01' : '02', // 広告IDを交互に設定
+        id: `ad-${startIndex}-${i}-${adCount}`,
+        adId: adCount % 2 === 0 ? '01' : '02',
         content: null,
         originalIndex: i
       });
       adCount++;
     }
     
-    // 全体をシャッフル
+    // このバッチ内でシャッフル
     for (let i = content.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [content[i], content[j]] = [content[j], content[i]];
@@ -115,6 +134,53 @@ export default function Home() {
     
     return content;
   }, [shuffledVideos]);
+
+  // 初期コンテンツを設定
+  useEffect(() => {
+    if (shuffledVideos.length > 0) {
+      const initialContent = generateContentBatch(0, 20);
+      setDisplayedContent(initialContent);
+      setCurrentPage(1);
+    }
+  }, [shuffledVideos, generateContentBatch]);
+
+  // 無限スクロール用のIntersection Observer
+  useEffect(() => {
+    if (!loadingRef.current || isLoadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          loadMoreContent();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observerRef.current = observer;
+    observer.observe(loadingRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [isLoadingMore]);
+
+  // 追加コンテンツを読み込む
+  const loadMoreContent = useCallback(async () => {
+    if (isLoadingMore) return;
+    
+    setIsLoadingMore(true);
+    
+    // 少し遅延を入れてスムーズな読み込みを演出
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const newContent = generateContentBatch(currentPage * 20, 20);
+    setDisplayedContent(prev => [...prev, ...newContent]);
+    setCurrentPage(prev => prev + 1);
+    setIsLoadingMore(false);
+  }, [currentPage, generateContentBatch, isLoadingMore]);
 
   // SEO最適化された構造化データ（先頭30件を ItemList として出力）
   const jsonLd = useMemo(() => {
@@ -203,7 +269,7 @@ export default function Home() {
         />
       )}
       {!ok && <AgeGate onAllow={() => setOk(true)} />}
-      {ok && shuffledContent.map((item, index) => (
+      {ok && displayedContent.map((item, index) => (
         <div key={item.id}>
           {item.type === 'video' && item.content ? (
             <DugaEmbedCard
@@ -238,6 +304,16 @@ export default function Home() {
           ) : null}
         </div>
       ))}
+      
+      {/* 無限スクロール用のローディング要素 */}
+      <div ref={loadingRef} className="loading-more" style={{ 
+        padding: '20px', 
+        textAlign: 'center',
+        color: '#666',
+        fontSize: '14px'
+      }}>
+        {isLoadingMore ? '動画を読み込み中...' : 'スクロールでさらに読み込み'}
+      </div>
     </main>
   );
 }

@@ -17,32 +17,14 @@ function generateSVG(size) {
   const center = size / 2;
   const radius = 240 * scale;
   const buttonRadius = 80 * scale;
-  const arrowSize = 10 * scale;
   
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- 背景円 -->
-  <circle cx="${center}" cy="${center}" r="${radius}" fill="#FF6B9D" stroke="#E91E63" stroke-width="${8 * scale}"/>
+  <circle cx="${center}" cy="${center}" r="${radius}" fill="white" stroke="black" stroke-width="${8 * scale}"/>
   
   <!-- 中央の動画プレイボタン -->
-  <circle cx="${center}" cy="${center}" r="${buttonRadius}" fill="white" opacity="0.9"/>
-  <polygon points="${center - 20 * scale},${center - 30 * scale} ${center - 20 * scale},${center + 30 * scale} ${center + 40 * scale},${center}" fill="#E91E63"/>
-  
-  <!-- 縦スクロールを表現する矢印 -->
-  <g fill="white" opacity="0.8">
-    <!-- 上向き矢印 -->
-    <polygon points="${center},${120 * scale} ${center - 10 * scale},${140 * scale} ${center + 10 * scale},${140 * scale}"/>
-    <rect x="${center - 5 * scale}" y="${140 * scale}" width="${10 * scale}" height="${20 * scale}"/>
-    
-    <!-- 下向き矢印 -->
-    <polygon points="${center},${392 * scale} ${center - 10 * scale},${372 * scale} ${center + 10 * scale},${372 * scale}"/>
-    <rect x="${center - 5 * scale}" y="${352 * scale}" width="${10 * scale}" height="${20 * scale}"/>
-  </g>
-  
-  <!-- 装飾的な要素 -->
-  <circle cx="${120 * scale}" cy="${120 * scale}" r="${15 * scale}" fill="white" opacity="0.3"/>
-  <circle cx="${392 * scale}" cy="${120 * scale}" r="${12 * scale}" fill="white" opacity="0.3"/>
-  <circle cx="${120 * scale}" cy="${392 * scale}" r="${12 * scale}" fill="white" opacity="0.3"/>
-  <circle cx="${392 * scale}" cy="${392 * scale}" r="${15 * scale}" fill="white" opacity="0.3"/>
+  <circle cx="${center}" cy="${center}" r="${buttonRadius}" fill="black" opacity="0.9"/>
+  <polygon points="${center - 20 * scale},${center - 30 * scale} ${center - 20 * scale},${center + 30 * scale} ${center + 40 * scale},${center}" fill="white"/>
 </svg>`;
 }
 
