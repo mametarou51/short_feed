@@ -175,9 +175,9 @@ export default function Home() {
     });
     
     for (let i = adInterval; i < content.length; i += adInterval) {
-      const isJuicyAd = adCount % 4 === 3; // 4回に1回JuicyAds (0,1,2がDUGA、3がJuicy)
-      const adId = isJuicyAd ? 'juicy' : (adCount % 3 === 0 ? '01' : adCount % 3 === 1 ? '02' : '03');
-      const adProvider = isJuicyAd ? 'juicy' : 'duga';
+      const isJuicyAd = false; // JuicyAds一時的に無効化
+      const adId = adCount % 3 === 0 ? '01' : adCount % 3 === 1 ? '02' : '03';
+      const adProvider = 'duga'; // すべてDUGA広告に変更
       
       console.log(`🎯 Creating ad ${adCount}:`, {
         position: i,
