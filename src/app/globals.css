@@ -142,6 +142,7 @@ main, .feed {
 
 .card {
   position: relative;
+  width: 100vw; /* 画面幅いっぱいに設定 */
   height: calc(100vh - var(--header-height, 60px)); /* ヘッダー分を除いた高さ */
   min-height: calc(100vh - var(--header-height, 60px));
   scroll-snap-align: start;
@@ -149,6 +150,8 @@ main, .feed {
   background: #000;
   display: flex;
   flex-direction: column;
+  margin-left: calc(-50vw + 50%); /* 中央寄せのための調整 */
+  margin-right: calc(-50vw + 50%);
 }
 
 /* 画面下オーバーレイ - より目立つように修正 */
@@ -686,18 +689,20 @@ main, .feed {
 /* 動画サムネイル表示スタイル */
 .video-thumbnail-container {
   position: relative;
-  width: 100%;
+  width: 100vw; /* 画面幅いっぱいに設定 */
   height: 100%;
   flex: 1;
   overflow: hidden;
   min-height: 70vh; /* サムネイルエリアの最小高さを70%に設定 */
+  margin-left: calc(-50vw + 50%); /* 中央寄せのための調整 */
+  margin-right: calc(-50vw + 50%);
 }
 
 .video-thumbnail {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw; /* 画面幅いっぱいに設定 */
   height: 100%;
   background-size: cover;
   background-position: center;
@@ -708,6 +713,8 @@ main, .feed {
   cursor: pointer;
   z-index: 1;
   background-color: #1a1a1a;
+  margin-left: calc(-50vw + 50%); /* 中央寄せのための調整 */
+  margin-right: calc(-50vw + 50%);
 }
 
 .video-thumbnail.error {
@@ -1093,13 +1100,15 @@ textarea.form-control {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw; /* 画面幅いっぱいに設定 */
   height: 100%;
   z-index: 2;
   cursor: pointer;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  margin-left: calc(-50vw + 50%); /* 中央寄せのための調整 */
+  margin-right: calc(-50vw + 50%);
 }
 .custom-thumbnail-bg[data-bg-url] {
   background-image: var(--bg-url);
@@ -1122,7 +1131,7 @@ textarea.form-control {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw; /* 画面幅いっぱいに設定 */
   height: 100%;
   z-index: 2;
   cursor: pointer;
@@ -1131,4 +1140,6 @@ textarea.form-control {
   justify-content: center;
   overflow: hidden;
   background: #1a1a1a;
+  margin-left: calc(-50vw + 50%); /* 中央寄せのための調整 */
+  margin-right: calc(-50vw + 50%);
 }
