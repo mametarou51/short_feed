@@ -211,12 +211,11 @@ export default function Home() {
               onUserAction={trackUserBehavior}
             />
           ) : item.type === 'ad' ? (
-            <div className="ad-container" style={{ 
+            <div className="card ad-container" style={{ 
               display: 'flex', 
+              alignItems: 'center',
               justifyContent: 'center', 
-              padding: '20px 0',
-              backgroundColor: '#f5f5f5',
-              margin: '10px 0'
+              backgroundColor: '#000'
             }}>
               <iframe 
                 src={`https://ad.duga.jp/dynamic/48475/${item.adId}/`} 
@@ -225,7 +224,11 @@ export default function Home() {
                 width={420} 
                 height={180} 
                 frameBorder={0} 
-                style={{border: 'none'}} 
+                style={{
+                  border: 'none',
+                  maxWidth: '90vw',
+                  maxHeight: '50vh'
+                }} 
                 scrolling="no"
                 title="DUGA広告"
               >
