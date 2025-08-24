@@ -5,6 +5,12 @@ import { useVideos } from "@/hooks/useVideos";
 import useRecommendationAlgorithm from "@/hooks/useRecommendationAlgorithm";
 import type { Video } from "@/types/video";
 
+// JuicyAdsの型定義
+declare global {
+  interface Window {
+    adsbyjuicy?: any[];
+  }
+}
 
 // 期間を ISO 8601 に変換（例: 180 -> PT3M）
 function toIsoDuration(seconds?: number): string | undefined {
@@ -76,6 +82,30 @@ export default function Home() {
     setOk(!!localStorage.getItem("agreed18"));
   }, []);
 
+  // JuicyAdsの初期化
+  useEffect(() => {
+    // クライアントサイドでのみ実行
+    if (typeof window === 'undefined') return;
+    
+    // window.adsbyjuicyを初期化（スクリプト読み込み前でも安全）
+    window.adsbyjuicy = window.adsbyjuicy || [];
+    
+    // JuicyAdsスクリプトが既に読み込まれているかチェック
+    if (!document.querySelector('script[src*="jads.js"]')) {
+      // スクリプトが読み込まれていない場合は読み込む
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://poweredby.jads.co/js/jads.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('JuicyAds script loaded successfully');
+      };
+      script.onerror = () => {
+        console.log('Failed to load JuicyAds script');
+      };
+      document.head.appendChild(script);
+    }
+  }, []);
 
   // 完全ランダムシャッフル
   const shuffledVideos = useMemo(() => {
@@ -126,7 +156,7 @@ export default function Home() {
       content.splice(i, 0, {
         type: 'ad',
         id: `ad-${i}-cycle-${cycle}`,
-        adId: adCount % 3 === 0 ? '01' : adCount % 3 === 1 ? '02' : '03', // DUGA広告のみ3つ循環
+        adId: adCount % 4 === 0 ? '01' : adCount % 4 === 1 ? '02' : adCount % 4 === 2 ? '03' : 'juicy', // 広告IDを4つ循環で設定（DUGA 3つ + JuicyAds 1つ）
         content: null,
         originalIndex: i,
         cycle
@@ -246,6 +276,34 @@ export default function Home() {
     };
   }, [shuffledVideos]);
 
+  // JuicyAds広告の初期化
+  useEffect(() => {
+    if (displayedContent.some(item => item.type === 'ad' && item.adId === 'juicy')) {
+      // JuicyAds広告が表示されている場合、スクリプトが読み込まれるまで待つ
+      const checkAndInit = () => {
+        if (typeof window !== 'undefined' && window.adsbyjuicy && Array.isArray(window.adsbyjuicy)) {
+          try {
+            // 既に初期化されているかチェック（CSS IDセレクターを修正）
+            const existingAd = document.querySelector('[id="1099699"]');
+            if (existingAd && !existingAd.hasAttribute('data-juicy-initialized')) {
+              window.adsbyjuicy.push({'adzone': 1099699});
+              existingAd.setAttribute('data-juicy-initialized', 'true');
+            }
+          } catch (error) {
+            console.log('JuicyAds initialization error:', error);
+          }
+        } else {
+          // まだ読み込まれていない場合は再試行
+          setTimeout(checkAndInit, 500);
+        }
+      };
+      
+      // 初回チェックを少し遅らせる
+      const timer = setTimeout(checkAndInit, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [displayedContent]);
 
   if (loading) {
     return (
@@ -282,7 +340,22 @@ export default function Home() {
               onUserAction={trackUserBehavior}
             />
           ) : item.type === 'ad' ? (
-            (
+            item.adId === 'juicy' ? (
+              <div className="card ad-container" style={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                justifyContent: 'center', 
+                backgroundColor: '#000'
+              }}>
+                {/* JuicyAds v3.0 */}
+                <ins 
+                  id="1099699" 
+                  data-width="108" 
+                  data-height="140"
+                  data-juicy-initialized="false"
+                ></ins>
+              </div>
+            ) : (
               <div className="card ad-container" style={{ 
                 display: 'flex', 
                 alignItems: 'center',
