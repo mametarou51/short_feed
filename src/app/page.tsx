@@ -276,31 +276,79 @@ export default function Home() {
     };
   }, [shuffledVideos]);
 
-  // JuicyAds広告の初期化
+  // JuicyAds広告の初期化 - 強化版
   useEffect(() => {
-    if (displayedContent.some(item => item.type === 'ad' && item.adId === 'juicy')) {
-      // JuicyAds広告が表示されている場合、スクリプトが読み込まれるまで待つ
-      const checkAndInit = () => {
-        if (typeof window !== 'undefined' && window.adsbyjuicy && Array.isArray(window.adsbyjuicy)) {
+    const juicyAds = displayedContent.filter(item => item.type === 'ad' && item.adId === 'juicy');
+    
+    if (juicyAds.length > 0) {
+      let initAttempts = 0;
+      const maxAttempts = 10;
+      
+      const initializeJuicyAds = () => {
+        if (typeof window !== 'undefined') {
           try {
-            // 既に初期化されているかチェック（CSS IDセレクターを修正）
-            const existingAd = document.querySelector('[id="1099699"]');
-            if (existingAd && !existingAd.hasAttribute('data-juicy-initialized')) {
-              window.adsbyjuicy.push({'adzone': 1099699});
-              existingAd.setAttribute('data-juicy-initialized', 'true');
+            // window.adsbyjuicyが存在することを確認
+            if (!window.adsbyjuicy || !Array.isArray(window.adsbyjuicy)) {
+              console.log('JuicyAds array not ready, attempt:', initAttempts + 1);
+              if (initAttempts < maxAttempts) {
+                initAttempts++;
+                setTimeout(initializeJuicyAds, 1000);
+                return;
+              }
+            }
+            
+            const adElement = document.querySelector('[id="1099699"]');
+            const fallbackElement = document.getElementById('juicy-fallback');
+            
+            if (adElement && !adElement.hasAttribute('data-juicy-initialized')) {
+              console.log('Initializing JuicyAds with adzone 1099699');
+              
+              // JuicyAds初期化
+              window.adsbyjuicy!.push({'adzone': 1099699});
+              adElement.setAttribute('data-juicy-initialized', 'true');
+              
+              // 5秒後に広告が読み込まれているかチェック
+              setTimeout(() => {
+                const hasAdContent = adElement.querySelector('iframe, script, div[style*="width"], div[class]');
+                const hasInnerHTML = adElement.innerHTML.trim().length > 50;
+                
+                if (hasAdContent || hasInnerHTML) {
+                  console.log('JuicyAds loaded successfully');
+                  if (fallbackElement) {
+                    fallbackElement.style.display = 'none';
+                  }
+                } else {
+                  console.log('JuicyAds failed to load, showing message');
+                  if (fallbackElement) {
+                    fallbackElement.innerHTML = '<div style="color: #666; font-size: 13px; text-align: center;">広告がブロックされています<br/><span style="font-size: 11px;">サイト運営のためご協力ください</span></div>';
+                  }
+                }
+              }, 5000);
+              
+              // さらに長時間後のチェック
+              setTimeout(() => {
+                const hasAdContent = adElement.querySelector('iframe, script, div[style*="width"], div[class]');
+                if (!hasAdContent && initAttempts < maxAttempts) {
+                  console.log('Retrying JuicyAds initialization...');
+                  adElement.removeAttribute('data-juicy-initialized');
+                  adElement.innerHTML = '';
+                  initAttempts++;
+                  setTimeout(initializeJuicyAds, 2000);
+                }
+              }, 10000);
             }
           } catch (error) {
-            console.log('JuicyAds initialization error:', error);
+            console.error('JuicyAds initialization error:', error);
+            if (initAttempts < maxAttempts) {
+              initAttempts++;
+              setTimeout(initializeJuicyAds, 2000);
+            }
           }
-        } else {
-          // まだ読み込まれていない場合は再試行
-          setTimeout(checkAndInit, 500);
         }
       };
       
-      // 初回チェックを少し遅らせる
-      const timer = setTimeout(checkAndInit, 1000);
-      
+      // 初期化開始
+      const timer = setTimeout(initializeJuicyAds, 2000);
       return () => clearTimeout(timer);
     }
   }, [displayedContent]);
@@ -345,15 +393,52 @@ export default function Home() {
                 display: 'flex', 
                 alignItems: 'center',
                 justifyContent: 'center', 
-                backgroundColor: '#000'
+                backgroundColor: '#1a1a1a',
+                minHeight: '300px',
+                padding: '20px',
+                position: 'relative',
+                border: '1px solid #333'
               }}>
-                {/* JuicyAds v3.0 */}
-                <ins 
-                  id="1099699" 
-                  data-width="108" 
-                  data-height="140"
-                  data-juicy-initialized="false"
-                ></ins>
+                {/* JuicyAds - より大きなサイズとフォールバック */}
+                <div 
+                  id="juicy-ad-container" 
+                  style={{
+                    width: '320px',
+                    height: '250px',
+                    backgroundColor: 'transparent',
+                    position: 'relative'
+                  }}
+                >
+                  <ins 
+                    id="1099699" 
+                    data-width="320" 
+                    data-height="250"
+                    style={{
+                      display: 'block',
+                      width: '320px',
+                      height: '250px',
+                      backgroundColor: 'transparent'
+                    }}
+                  ></ins>
+                  {/* フォールバック表示 */}
+                  <div 
+                    id="juicy-fallback"
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      color: '#888',
+                      textAlign: 'center',
+                      fontSize: '14px',
+                      zIndex: 1,
+                      pointerEvents: 'none'
+                    }}
+                  >
+                    <div>広告を読み込み中...</div>
+                    <div style={{ fontSize: '12px', marginTop: '5px' }}>AdBlockを無効にしてください</div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="card ad-container" style={{ 
