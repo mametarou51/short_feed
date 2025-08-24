@@ -5,12 +5,6 @@ import { useVideos } from "@/hooks/useVideos";
 import useRecommendationAlgorithm from "@/hooks/useRecommendationAlgorithm";
 import type { Video } from "@/types/video";
 
-// JuicyAdsの型定義
-declare global {
-  interface Window {
-    adsbyjuicy?: any[];
-  }
-}
 
 // 期間を ISO 8601 に変換（例: 180 -> PT3M）
 function toIsoDuration(seconds?: number): string | undefined {
@@ -82,39 +76,6 @@ export default function Home() {
     setOk(!!localStorage.getItem("agreed18"));
   }, []);
 
-  // JuicyAdsの初期化
-  useEffect(() => {
-    // クライアントサイドでのみ実行
-    if (typeof window === 'undefined') return;
-    
-    // window.adsbyjuicyを初期化（スクリプト読み込み前でも安全）
-    window.adsbyjuicy = window.adsbyjuicy || [];
-    
-    // JuicyAdsスクリプトが既に読み込まれているかチェック
-    const existingScript = document.querySelector('script[src*="jads.js"]');
-    if (!existingScript) {
-      // スクリプト読み込みを試行
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = 'https://poweredby.jads.co/js/jads.js';
-      script.async = true;
-      
-      // 成功時
-      script.onload = () => {
-        console.log('JuicyAds script loaded successfully');
-      };
-      
-      // 失敗時（ブロックされた場合など）
-      script.onerror = () => {
-        console.log('JuicyAds script blocked or failed to load');
-        // スクリプトがブロックされた場合、フォールバック表示を維持
-      };
-      
-      document.head.appendChild(script);
-    } else {
-      console.log('JuicyAds script already present');
-    }
-  }, []);
 
   // 完全ランダムシャッフル
   const shuffledVideos = useMemo(() => {
@@ -165,7 +126,7 @@ export default function Home() {
       content.splice(i, 0, {
         type: 'ad',
         id: `ad-${i}-cycle-${cycle}`,
-        adId: adCount % 4 === 0 ? '01' : adCount % 4 === 1 ? '02' : adCount % 4 === 2 ? '03' : 'juicy', // 広告IDを4つ循環で設定（DUGA 3つ + JuicyAds 1つ）
+        adId: adCount % 3 === 0 ? '01' : adCount % 3 === 1 ? '02' : '03', // DUGA広告のみ3つ循環
         content: null,
         originalIndex: i,
         cycle
@@ -285,66 +246,6 @@ export default function Home() {
     };
   }, [shuffledVideos]);
 
-  // JuicyAds広告の初期化 - 改善版（過度なリトライを防止）
-  useEffect(() => {
-    const juicyAds = displayedContent.filter(item => item.type === 'ad' && item.adId === 'juicy');
-    
-    if (juicyAds.length > 0) {
-      let hasAttemptedInit = false;
-      
-      const initializeJuicyAds = () => {
-        if (typeof window !== 'undefined' && !hasAttemptedInit) {
-          hasAttemptedInit = true;
-          
-          try {
-            // JuicyAdsスクリプトと配列の確認
-            if (!window.adsbyjuicy || !Array.isArray(window.adsbyjuicy)) {
-              console.log('JuicyAds not available, showing fallback');
-              return;
-            }
-            
-            const adElement = document.querySelector('[id="1099699"]');
-            
-            if (adElement && !adElement.hasAttribute('data-juicy-initialized')) {
-              console.log('Attempting JuicyAds initialization');
-              
-              // JuicyAds初期化（1回のみ）
-              window.adsbyjuicy.push({'adzone': 1099699});
-              adElement.setAttribute('data-juicy-initialized', 'true');
-              
-              // 成功判定は1回だけ、8秒後にチェック
-              setTimeout(() => {
-                const hasAdContent = adElement.querySelector('iframe, script, div[id], [class*="ad"]');
-                const hasSignificantContent = adElement.innerHTML.trim().length > 100;
-                
-                juicyAds.forEach((_, index) => {
-                  const fallbackElement = document.getElementById(`fallback-ad-${index}`) || 
-                                          document.querySelector(`[id*="fallback-"]:nth-of-type(${index + 1})`);
-                  
-                  if (hasAdContent || hasSignificantContent) {
-                    console.log('JuicyAds loaded successfully');
-                    if (fallbackElement) {
-                      fallbackElement.style.display = 'none';
-                    }
-                  } else {
-                    console.log('JuicyAds not loaded, showing fallback message');
-                    // フォールバックはCSSで既に表示されているので、何もしない
-                  }
-                });
-              }, 8000);
-            }
-          } catch (error) {
-            console.log('JuicyAds initialization error:', error);
-            // エラーが発生した場合はフォールバック表示のまま
-          }
-        }
-      };
-      
-      // 初期化開始（1回のみ）
-      const timer = setTimeout(initializeJuicyAds, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [displayedContent]);
 
   if (loading) {
     return (
@@ -381,95 +282,7 @@ export default function Home() {
               onUserAction={trackUserBehavior}
             />
           ) : item.type === 'ad' ? (
-            item.adId === 'juicy' ? (
-              <div className="card ad-container" style={{ 
-                display: 'flex', 
-                alignItems: 'center',
-                justifyContent: 'center', 
-                backgroundColor: '#1a1a1a',
-                minHeight: '250px',
-                padding: '15px',
-                position: 'relative',
-                border: '1px solid #333',
-                borderRadius: '8px'
-              }}>
-                {/* 代替広告ソリューション */}
-                <div 
-                  id={`juicy-ad-${item.id}`}
-                  style={{
-                    width: '100%',
-                    maxWidth: '320px',
-                    height: '250px',
-                    backgroundColor: 'transparent',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {/* JuicyAds要素 - ユニークID使用 */}
-                  <ins 
-                    id={`juicy-ad-${item.cycle}-${item.originalIndex}`}
-                    className="juicy-ads-zone"
-                    data-width="320" 
-                    data-height="250"
-                    data-adzone="1099699"
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      height: '100%',
-                      backgroundColor: 'transparent'
-                    }}
-                  ></ins>
-                  
-                  {/* 改善されたフォールバック */}
-                  <div 
-                    id={`fallback-${item.id}`}
-                    style={{
-                      position: 'absolute',
-                      top: '0',
-                      left: '0',
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#888',
-                      textAlign: 'center',
-                      fontSize: '14px',
-                      zIndex: 1,
-                      background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)',
-                      borderRadius: '6px'
-                    }}
-                  >
-                    <div style={{ 
-                      marginBottom: '10px',
-                      fontSize: '16px',
-                      fontWeight: '500'
-                    }}>
-                      📢 広告スペース
-                    </div>
-                    <div style={{ 
-                      fontSize: '13px',
-                      lineHeight: '1.4',
-                      opacity: '0.8',
-                      maxWidth: '250px'
-                    }}>
-                      サイト運営のため、広告ブロッカーを無効にしていただけると助かります
-                    </div>
-                    <div style={{
-                      marginTop: '10px',
-                      padding: '6px 12px',
-                      backgroundColor: '#333',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      opacity: '0.6'
-                    }}>
-                      AdBlock無効化をお願いします
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
+            (
               <div className="card ad-container" style={{ 
                 display: 'flex', 
                 alignItems: 'center',
