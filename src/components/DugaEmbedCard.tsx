@@ -33,27 +33,53 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
              data-p="${video.id}" 
              data-a="48475" 
              data-b="01"
-             style="width: 540px; height: 300px;">
+             style="width: 100%; height: 100%; min-height: 300px;">
           <a href="${video.offer.url}" target="_blank">${video.title}</a>
         </div>
       `;
       
       console.log(`Created player div for ${video.id}:`, container.innerHTML);
       
-      // プレイヤー用スクリプトを読み込み
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = 'https://ad.duga.jp/flash/dugaflvplayer.js';
-      script.onload = () => {
-        // スクリプト読み込み後、少し待ってからプレイヤーを初期化
+      // 既存のスクリプトをチェック
+      const existingScript = document.querySelector('script[src="https://ad.duga.jp/flash/dugaflvplayer.js"]');
+      
+      if (!existingScript) {
+        // プレイヤー用スクリプトを読み込み
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://ad.duga.jp/flash/dugaflvplayer.js';
+        script.onload = () => {
+          // スクリプト読み込み後、プレイヤーを初期化
+          setTimeout(() => {
+            if (typeof (window as any).initDugaAdMovie === 'function') {
+              console.log('Initializing DUGA player...');
+              try {
+                (window as any).initDugaAdMovie();
+              } catch (error) {
+                console.error('DUGA player initialization error:', error);
+              }
+            } else {
+              console.warn('initDugaAdMovie function not found');
+            }
+          }, 500);
+        };
+        script.onerror = () => {
+          console.error('Failed to load DUGA player script');
+        };
+        document.head.appendChild(script);
+      } else {
+        // スクリプトが既に存在する場合は直接初期化を試行
         setTimeout(() => {
-          // DUGAのプレイヤー初期化関数を実行
           if (typeof (window as any).initDugaAdMovie === 'function') {
-            (window as any).initDugaAdMovie();
+            console.log('Re-initializing existing DUGA player...');
+            try {
+              (window as any).initDugaAdMovie();
+            } catch (error) {
+              console.error('DUGA player re-initialization error:', error);
+            }
           }
-        }, 200);
-      };
-      document.body.appendChild(script);
+        }, 500);
+      }
       
       onUserAction({
         videoId: video.id,
@@ -62,11 +88,8 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
       }, video);
       
       return () => {
-        // クリーンアップ
+        // クリーンアップ（コンテナのみ）
         container.innerHTML = '';
-        if (script.parentNode) {
-          script.parentNode.removeChild(script);
-        }
       };
     }
   }, [video.id, video.offer.url, video.title, onUserAction]);
