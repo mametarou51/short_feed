@@ -287,13 +287,13 @@ export default function Home() {
             const existingAd = document.querySelector('[id="1099712"]');
             console.log('🔍 Looking for JuicyAds element:', existingAd);
             
-            if (existingAd && !existingAd.hasAttribute('data-juicy-initialized')) {
+            if (existingAd && existingAd.getAttribute('data-juicy-initialized') !== 'true') {
               console.log('📢 Pushing to JuicyAds queue: adzone 1099712');
               window.adsbyjuicy.push({'adzone': 1099712});
               existingAd.setAttribute('data-juicy-initialized', 'true');
               console.log('✅ JuicyAds initialization completed');
             } else if (existingAd) {
-              console.log('ℹ️ JuicyAds element already initialized');
+              console.log('ℹ️ JuicyAds element already initialized:', existingAd.getAttribute('data-juicy-initialized'));
             } else {
               console.log('⚠️ JuicyAds element not found in DOM');
             }
