@@ -24,66 +24,26 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
     if (thumbnailRef.current) {
       const container = thumbnailRef.current;
       
-      // 一意なIDを生成（cycle情報を追加して重複を防ぐ）
-      const uniqueId = `affimage-${video.id}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-      const thumbnailId = uniqueId;
-      
-      // 既存の同じIDの要素をクリア
-      const existingElement = document.getElementById(thumbnailId);
-      if (existingElement) {
-        existingElement.remove();
-      }
-      
+      // シンプルなサムネイル用のHTML構造を作成
+      const thumbnailId = `affimage-${video.id}`;
       container.innerHTML = `<div id="${thumbnailId}"><a href="${video.offer.url}" target="_blank">${video.title}</a></div>`;
       
-      // スクリプトが既に存在するかチェック
-      const scriptId = `duga-script-${video.id}`;
-      const existingScript = document.getElementById(scriptId);
-      
-      if (!existingScript) {
-        // サムネイル用スクリプトを読み込み
-        const script = document.createElement('script');
-        script.id = scriptId;
-        script.type = 'text/javascript';
-        script.src = `https://ad.duga.jp/affimage/ppv/${video.id}/1/48475-01`;
-        script.onload = () => {
-          // 遅延実行で初期化関数を呼び出し
-          setTimeout(() => {
-            if (typeof (window as any).initAffImage === 'function') {
-              try {
-                (window as any).initAffImage();
-              } catch (error) {
-                console.log('initAffImage error:', error);
-              }
-            }
-            
-            // サムネイル内のリンクのクリックを防ぐ
-            setTimeout(() => {
-              const thumbnailLinks = container.querySelectorAll('a');
-              thumbnailLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                });
-              });
-            }, 200);
-          }, 300);
-        };
-        script.onerror = () => {
-          console.log(`Failed to load DUGA script for ${video.id}`);
-        };
-        document.body.appendChild(script);
-      } else {
-        // スクリプトが既に存在する場合は直接初期化を試行
+      // サムネイル用スクリプトを読み込み
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = `https://ad.duga.jp/affimage/ppv/${video.id}/1/48475-01`;
+      script.onload = () => {
+        // スクリプト読み込み後にinitAffImage関数を実行
         setTimeout(() => {
           if (typeof (window as any).initAffImage === 'function') {
             try {
               (window as any).initAffImage();
             } catch (error) {
-              console.log('initAffImage error (existing script):', error);
+              console.log('initAffImage error:', error);
             }
           }
           
+          // サムネイル内のリンクのクリックを防ぐ
           setTimeout(() => {
             const thumbnailLinks = container.querySelectorAll('a');
             thumbnailLinks.forEach(link => {
@@ -92,16 +52,19 @@ export default function DugaEmbedCard({ video, onUserAction }: Props) {
                 e.stopPropagation();
               });
             });
-          }, 200);
-        }, 300);
-      }
+          }, 100);
+        }, 100);
+      };
+      script.onerror = () => {
+        console.log(`Failed to load DUGA script for ${video.id}`);
+      };
+      document.body.appendChild(script);
       
       return () => {
-        // クリーンアップ時はcontainerのみクリア、スクリプトは残す
+        // クリーンアップ
         container.innerHTML = '';
-        const element = document.getElementById(thumbnailId);
-        if (element) {
-          element.remove();
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
         }
       };
     }
