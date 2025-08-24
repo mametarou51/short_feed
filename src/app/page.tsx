@@ -124,7 +124,7 @@ export default function Home() {
       content.splice(i, 0, {
         type: 'ad',
         id: `ad-${i}-cycle-${cycle}`,
-        adId: adCount % 3 === 0 ? '01' : adCount % 3 === 1 ? '02' : '03', // 広告IDを3つ循環で設定
+        adId: adCount % 4 === 0 ? '01' : adCount % 4 === 1 ? '02' : adCount % 4 === 2 ? '03' : 'juicy', // 広告IDを4つ循環で設定（DUGA 3つ + JuicyAds 1つ）
         content: null,
         originalIndex: i,
         cycle
@@ -279,30 +279,45 @@ export default function Home() {
               onUserAction={trackUserBehavior}
             />
           ) : item.type === 'ad' ? (
-            <div className="card ad-container" style={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              justifyContent: 'center', 
-              backgroundColor: '#000'
-            }}>
-              <iframe 
-                src={`https://ad.duga.jp/dynamic/48475/${item.adId}/`} 
-                marginWidth={0} 
-                marginHeight={0} 
-                width={420} 
-                height={180} 
-                frameBorder={0} 
-                style={{
-                  border: 'none',
-                  maxWidth: '90vw',
-                  maxHeight: '50vh'
-                }} 
-                scrolling="no"
-                title="DUGA広告"
-              >
-                <a href={`https://click.duga.jp/48475-${item.adId}`} target="_blank" rel="noopener noreferrer">DUGA</a>
-              </iframe>
-            </div>
+            item.adId === 'juicy' ? (
+              <div className="card ad-container" style={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                justifyContent: 'center', 
+                backgroundColor: '#000'
+              }}>
+                {/* JuicyAds v3.0 */}
+                <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+                <ins id="1099699" data-width="108" data-height="140"></ins>
+                <script type="text/javascript" data-cfasync="false" async dangerouslySetInnerHTML={{ __html: "(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1099699});" }}></script>
+                {/*JuicyAds END*/}
+              </div>
+            ) : (
+              <div className="card ad-container" style={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                justifyContent: 'center', 
+                backgroundColor: '#000'
+              }}>
+                <iframe 
+                  src={`https://ad.duga.jp/dynamic/48475/${item.adId}/`} 
+                  marginWidth={0} 
+                  marginHeight={0} 
+                  width={420} 
+                  height={180} 
+                  frameBorder={0} 
+                  style={{
+                    border: 'none',
+                    maxWidth: '90vw',
+                    maxHeight: '50vh'
+                  }} 
+                  scrolling="no"
+                  title="DUGA広告"
+                >
+                  <a href={`https://click.duga.jp/48475-${item.adId}`} target="_blank" rel="noopener noreferrer">DUGA</a>
+                </iframe>
+              </div>
+            )
           ) : null}
         </div>
       ))}
